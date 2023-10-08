@@ -42,7 +42,7 @@ async def getImageIDsWithLabel(label: str):
 
             return duplicates
 
-    print(label)
+    # print(label)
 
     items = db.getImagesWithLabel(label)
     ids = []
@@ -50,4 +50,3 @@ async def getImageIDsWithLabel(label: str):
         ids.append(item["id"])
 
     return {"imageIDs": ids}
-

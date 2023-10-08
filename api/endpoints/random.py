@@ -49,7 +49,7 @@ async def getRandom(labels: str | None = None):
             if len(ids) == 0:
                 return {"error": "no images found with these labels", "type": "ValueError"}
             useID = ids[random.randint(0, len(ids) - 1)]
-        print(labels)
+        # print(labels)
 
     image_path = db.getImageByID(useID)["path"]
 

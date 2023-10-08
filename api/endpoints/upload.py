@@ -19,7 +19,7 @@ async def upload_file(file: UploadFile, labels: str | None = None):
     """
 
     labels: [str] = labels.split("\n") if labels is not None else []
-    print(labels)
+    # print(labels)
 
     # process the incoming file and save it according to the structure
     await handleIncomingImage(file=file, labels=labels)

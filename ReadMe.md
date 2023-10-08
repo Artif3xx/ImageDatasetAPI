@@ -1,17 +1,29 @@
-# DatasetAPI
+# ImageDatasetAPI
 
 A simple api to save and serve images. The purpose is to separate data
-and a machine learning model. To train the model, you simply need to 
+from a machine learning model. To train the model, you can simply 
 request an image from the api. The api will return a random image from
-the dataset.
+the dataset. You can read some more information about the api and how to use it below.
+
+#### TLDR: Usage
+
+Use Apple Shortcuts or any other script to send and collect data. Request labeled images to train a 
+machine learning model. Update the labels or metadata of an image to improve the dataset.
 
 ### Framework
 
 The whole API is build with [FastAPI](https://fastapi.tiangolo.com/). Docs are available and can be accessed 
-here: 
+here if the service is running: 
 - `http://127.0.0.1:8000/docs`
 - `http://127.0.0.1:8000/` redirect to `/docs`
 - `http://127.0.0.1:8000/redoc`
+
+### Docker
+
+You can run the api with docker. The dockerfile can be downloaded from releases or build by yourself. More instructions
+coming soon.
+
+↪ [ImageDatasetAPI Releases](https://github.com/Artif3xx/ImageDatasetAPI/releases)
 
 ## Collection Images
 
@@ -25,6 +37,8 @@ The simples way is to use a shortcut for this. You simply need to select an imag
 and send it to the api. The Metadata will be extracted on the server. You can find some example
 shortcuts in the `shortcuts` folder.
 
+↪ [Apple Shortcuts for ImageDatasetAPI](https://github.com/Artif3xx/ImageDatasetAPI/tree/master/shortcuts) 
+
 ## Getting Images
 
 To request an image, you simply need to send a get request to the api. You can choose 
@@ -36,14 +50,15 @@ returns a random image from the dataset
 
 #### Query Params
 
-- `label` - (optional) the label of the image as string. If no label is given, a random image will be returned
+- `label` - (optional) the label of the image as string in a list. If no label is given, a random image
+will be returned. You can select as many labels as you want, the minimum is one. 
 
 ```
-Example: 
+Example without labels:
 http://127.0.0.1:8000/random
 
-Example: 
-http://127.0.0.1:8000/random?labels=yellow
+Example with labels:
+http://127.0.0.1:8000/random?labels=['yellow']
 ```
 
 ## Labels
@@ -75,7 +90,8 @@ to this, there is no delete method implemented. There must at least a empty arra
 #### Query Params
 
 - `imageID` - the id of the image as integer
-- `labels` - the labels as string array. Example: `["label1", "label2"]`
+- `labels` - the labels as string array in a list. In this case the minium is an empty list.
+Example: `["label1", "label2"]`
 
 ```
 Example: 
