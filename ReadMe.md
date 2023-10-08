@@ -19,10 +19,11 @@ To be able to classify images we save as much incoming metadata as possible. Loc
 information and other useless stuff will be ignored. We focus on the camera settings and
 other information about how the image was taken.
 
-The simples way is to use a apple shortcut for this. You simply need to select an image 
-and send it to the api. The Metadata will be extracted on the server.
+### Apple Shortcuts
 
-*if possible, the shortcut is available in this repository*
+The simples way is to use a shortcut for this. You simply need to select an image 
+and send it to the api. The Metadata will be extracted on the server. You can find some example
+shortcuts in the `shortcuts` folder.
 
 ## Getting Images
 
