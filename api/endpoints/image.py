@@ -57,5 +57,3 @@ async def getRandom(labels: str | None = None):
         return FileResponse(image_path, headers={"Content-Type": "image/jpeg"})
     else:
         return {"error": "Bild nicht gefunden"}
-
-

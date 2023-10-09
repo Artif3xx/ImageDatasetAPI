@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.responses import RedirectResponse
 
-from api.endpoints import upload, random, labels, info
+from api.endpoints import upload, image, labels, info
 from api.database.database import Database
 
 # init the database with the path to the database file
@@ -11,7 +11,7 @@ app = FastAPI()
 
 # include route inside the endpoints folder
 app.include_router(upload.router)
-app.include_router(random.router)
+app.include_router(image.router)
 app.include_router(labels.router)
 app.include_router(info.router)
 

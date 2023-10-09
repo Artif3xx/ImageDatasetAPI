@@ -3,6 +3,9 @@ import ast
 
 
 class DatabaseEntry:
+    """
+    simple class to represent an image in the database
+    """
     def __init__(self, path: str, metadata: str, labels: str, imageID: int = None):
         self.path = path
         self.metadata = json.loads(metadata)
@@ -11,7 +14,7 @@ class DatabaseEntry:
         if imageID is not None:
             self.imageID = imageID
 
-    def getAsJson(self):
+    def asJson(self):
         """
         get the image model as a json string
 
