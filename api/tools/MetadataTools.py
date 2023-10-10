@@ -62,7 +62,7 @@ class MetadataTools:
 
     def getMetadata(self) -> dict:
         """
-        get the raw metadata as a dictionary
+        get the raw metadata as a dictionary. This can contain unhandled metadata that can cause errors.
         """
         return self.rawMetadata
 

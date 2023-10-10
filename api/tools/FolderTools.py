@@ -8,6 +8,12 @@ class FolderTools:
     dataFolder: str = ""
 
     def __init__(self, dataFolder: str = "data/"):
+        """
+        Create a new FolderTools object
+
+        :param dataFolder: the datafolder of the project. This folder will be used to store the images. The default
+        value is "data/"
+        """
         self.dataFolder = dataFolder if dataFolder.endswith("/") else dataFolder + "/"
 
     def createFolder(self, path: str) -> None:
@@ -20,7 +26,7 @@ class FolderTools:
         if not os.path.exists(self.dataFolder + path):
             os.makedirs(self.dataFolder + path)
 
-    def getNextFilePosition(self):
+    def getNextFilePosition(self) -> str:
         """
         Get the next file position in the database. This function will return the path to the next file position in the
         database. If the database is full, it will create a new folder and return the path to the first file position in

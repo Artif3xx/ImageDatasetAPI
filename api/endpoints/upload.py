@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, File, UploadFile
-from api.tools.metadata import MetadataTools
-from api.tools.folders import FolderTools
+from api.tools.MetadataTools import MetadataTools
+from api.tools.FolderTools import FolderTools
 from api.database import handler as db
 
 router = APIRouter()

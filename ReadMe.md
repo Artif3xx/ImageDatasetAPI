@@ -85,7 +85,7 @@ Example:
 http://127.0.0.1:8000/updateInfo?imageID=42?metadata={"key": "value"}?labels=["label1", "label2"]
 ```
 
-### Get `/random`
+### Get `/image/random`
 
 returns a random image from the dataset
 
@@ -98,6 +98,10 @@ will be returned. You can select as many labels as you want, the minimum is one.
 Example:
 http://127.0.0.1:8000/random?labels=['yellow']
 ```
+
+### Get `/image`
+
+return an image by id or path
 
 ## Labels
 

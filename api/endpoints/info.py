@@ -24,6 +24,7 @@ async def getImageInfoByID(imageID: int | None = None, path: str | None = None):
         info = json.load(open("package.json"))
         return {"info": info}
 
+    # check if the imageID and the path is not None. If so, check if they match and return the info
     if imageID is not None and path is not None:
         imageData1 = db.getImageByID(imageID)
         imageData2 = db.getImageByPath(path)
@@ -37,7 +38,8 @@ async def getImageInfoByID(imageID: int | None = None, path: str | None = None):
 
         return {"error": "imageID and path do not match"}
 
-    if imageID is not None:
+    # check if the imageID is not None, but the path is. If so, process only the imageID
+    if imageID is not None and path is None:
         imageData = db.getImageByID(imageID)
         # check if the image data is an error
         if "error" in imageData:
@@ -45,7 +47,8 @@ async def getImageInfoByID(imageID: int | None = None, path: str | None = None):
         model = cardModel.DatabaseEntry(imageData["path"], imageData["metadata"], imageData["labels"], imageData["id"])
         return model.asJson()
 
-    if path is not None:
+    # check if the path is not None, but the imageID is. If so, process only the path
+    if path is not None and imageID is None:
         imageData = db.getImageByPath(path)
         # check if the image data is an error
         if "error" in imageData:

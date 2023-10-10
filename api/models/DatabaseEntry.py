@@ -32,6 +32,12 @@ class DatabaseEntry:
         return data
 
     def getLabels(self):
+        """
+        get the labels of the image database Entry in a dictionary
+
+        :return: the labels as a json string
+        """
+        # create a datastructure that can be converted to json
         data = {
             "labels": self.labels
         }
