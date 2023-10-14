@@ -1,22 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
-    {% include 'partials/header.html' without context %}
-    <title>Title</title>
+    {% include 'partials/head.html' %}
+    <title>Search</title>
 </head>
 <body>
-{% include 'partials/navbar.html' without context %}
+{% include 'partials/navbar.html' %}
 
-<div class="container-sm">
+<div class="container-sm mt-5">
+
     <form>
         <div class="input-group mb-3">
             <input  id="imageSearch" type="text" class="form-control" placeholder="e.g. tag" aria-label="imageSearch" aria-describedby="button-addon2">
-            <button class="btn btn-outline-secondary" type="button" id="button-addon2">search</button>
+            <button class="btn btn-outline-secondary" type="button" id="imageSearch_button">search</button>
         </div>
     </form>
+
+    <div>
+        <ul class="list-group imageSearch_results">
+          <li class="list-group-item">
+              <ul class="list-group list-group-horizontal">
+                  <li class="list-group-item">id</li>
+                  <li class="list-group-item">A second item</li>
+                  <li class="list-group-item">A third item</li>
+              </ul>
+          </li>
+        </ul>
+
+    </div>
+
 </div>
 
 
 
-{% include 'partials/footer.html' without context %}</body>
+{% include 'partials/footer.html' %}</body>
 </html>
