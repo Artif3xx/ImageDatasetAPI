@@ -1,30 +1,27 @@
 # ImageDatasetAPI
 
-A simple api to save and serve images. The purpose is to separate data
-from a machine learning model. To train the model, you can simply 
-request an image from the api. The api will return a random image from
-the dataset. You can read some more information about the api and how to use it below.
+A simple docker based application to store and label images. Metadata of images will automatically be extracted and
+stored as well. The api is build with FastAPI and uses a sqlite database to store the data. Images will be saved in the 
+filesystem. The purpose of the project is to collect and label images for a machine learning model. To train the model,
+you can simply request an image from the api. You can see the available endpoints below. 
 
-### TLDR: Usage
-
-Use Apple Shortcuts or any other script to send and collect data. Request labeled images to train a 
-machine learning model. Update the labels or metadata of an image to improve the dataset.
+There is also a custom frontend to manage the dataset, update labels and metadata. More information coming soon!
 
 --- 
 
 ###  Table of Contents
 
-1. Framework & Docker
-2. Collection Images
-3. Getting Images
-4. Labels
+1. [Collection Images](https://github.com/Artif3xx/ImageDatasetAPI/tree/master#collection-images)
+2. [API Endpoints](https://github.com/Artif3xx/ImageDatasetAPI/tree/master#api-endpoints)
+3. [Labels](https://github.com/Artif3xx/ImageDatasetAPI/tree/master#labels)
+4. [Metadata](https://github.com/Artif3xx/ImageDatasetAPI/tree/master#metadata)
 
 ### Framework
 
 The whole API is build with [FastAPI](https://fastapi.tiangolo.com/). Docs are available and can be accessed 
 here if the service is running: 
 - `http://127.0.0.1:8000/docs`
-- `http://127.0.0.1:8000/` redirect to `/docs`
+- `http://127.0.0.1:8000/`
 - `http://127.0.0.1:8000/redoc`
 
 ### Docker
@@ -33,6 +30,8 @@ You can run the api with docker. The dockerfile can be downloaded from releases 
 coming soon.
 
 ↪ [ImageDatasetAPI Releases](https://github.com/Artif3xx/ImageDatasetAPI/releases)
+
+---
 
 ## Collection Images
 
@@ -48,42 +47,96 @@ shortcuts in the `shortcuts` folder.
 
 ↪ [Apple Shortcuts for ImageDatasetAPI](https://github.com/Artif3xx/ImageDatasetAPI/tree/master/shortcuts) 
 
-## Getting Images
+## API Endpoints
 
 To request an image, you simply need to send a get request to the api. You can choose 
 between two different endpoints.
 
 ### Get `/info`
 
-returns information about the used api version. If you set a query parameter you get the saved information 
-about the requested image.
+returns information about the used api version.
 
-#### Query Params
+#### Example  
 
-- `?imageID` - (optional) the id of the image as integer
-- `?path` - (optional) the image path as string. This is the path to the image on the server and saved in the database.
-
-```
-Example:
-http://127.0.0.1:8000/info?imageID=42?path=data/0-100/42-image.jpg
+```http request:
+http://127.0.0.1:8000/info
 ```
 
-### Post `/info/update`
+---
 
-Update the information about the image. This method can be used to add or remove information from an image. You can
-update both the metadata and the labels. According to this, there is no delete method implemented. There must at least
-an empty dict "{}" and an empty array "[]" be sent to remove all information.
+### Get `/item/{item_id: int}`
 
-#### Query Params
+Get the database item of the given id. The item contains the image path, metadata and labels.
 
-- `?imageID` - the id of the image as integer
-- `?metadata` - (optional) the metadata as dict in a list. In this case the minium is an empty dict.
-- `?labels` - (optional) the labels as string array in a list. In this case the minium is an empty list.
+#### Path Params
 
+- `item_id` - the id of the image as integer
+
+#### Example
+
+```http request:
+http://127.0.0.1:8000/item/42
 ```
-Example:
-http://127.0.0.1:8000/updateInfo?imageID=42?metadata={"key": "value"}?labels=["label1", "label2"]
+
+---
+
+### Post `/item/{item_id: int}/update`
+
+Update the item of the given id. The item in the body must contains at least an empty metadata dict and a 
+labels string list.
+
+#### Path Params
+
+- `item_id` - the id of the image as integer
+
+#### Body
+
+```json:
+newItem = {
+  "metadata": {},
+  "labels": []
+}
 ```
+
+#### Example
+
+```http request:
+http://127.0.0.1:8000/item/42/update data=newItem
+```
+
+---
+
+### Delete `/item/{item_id: int}/delete`
+
+Delete the item of the given id. The image will be deleted from the server and the database.
+
+#### Path Params
+
+- `item_id` - the id of the image as integer
+
+#### Example
+
+```http request:
+http://127.0.0.2:8000/deleteInfo?imageID=42
+```
+
+---
+
+### Get `/image/{item_id: int}`
+
+return an image by id
+
+#### Path Params
+
+- `item_id` - the id of the image as integer
+
+#### Example
+
+```http request:
+http://127.0.0.1:8000/image/42
+```
+
+---
 
 ### Get `/image/random`
 
@@ -96,53 +149,35 @@ will be returned. You can select as many labels as you want, the minimum is one.
 
 ```
 Example:
-http://127.0.0.1:8000/random?labels=['yellow']
+http://127.0.0.1:8000/random?labels=['iPhone 15']
 ```
 
-### Get `/image`
+---
 
-return an image by id or path
+### Get `/search`
+
+you can search the database for images with specific labels. The labels must be given as a list of strings. The 
+endpoint returns all the available items in the database.
+
+#### Query Params
+
+- `?labels` - the label of the image as string in a list. There must be at least one label to search for
+- `?onlyOne` - (optional) boolean value. if true, images containing only one of the search labels will be returned.
+the default value is false. This means the item must contain all the labels in the string list.
+
+#### Example
+
+```http request:
+http://127.0.0.1:8000/search?labels=['iPhone 15', 'iPhone 16']&onlyOne=true
+http://127.0.0.1:8000/search?labels=['iPhone 15', 'iPhone 16']
+```
+
+---
 
 ## Labels
 
-The images are labels if possible. The labels are extracted from the metadata. If no label is 
-available, the image will be labeled as "unknown" and saved in a different folder. The server 
-maintainer needs to take care of the images.
-
-To get the available labels, you can choose between the following endpoints:
-
-### Get `/labels`
-
-returns all labels from the image
-
-#### Query Params
-
-- `?imageID` - (optional) the id of the image as integer
-- `?path` - (optional) the image path as string. This is the path to the image on the server and saved in the database.
-
-```
-Example:
-http://127.0.0.1:8000/labels?imageID=42?path=data/0-100/42-image.jpg
-```
-
-### Post `/labels/update`
-
-updates the labels for the given image id. This method can be used to add or remove labels from an image. According 
-to this, there is no delete method implemented. There must at least an empty array be sent to remove all labels.
-
-#### Query Params
-
-- `?imageID` - the id of the image as integer
-- `?labels` - the labels as string array in a list. In this case the minium is an empty list.
-Example: `["label1", "label2"]`
-
-```
-Example: 
-http://127.0.0.1:8000/updateLabels?imageID=42?labels=["label1", "label2"]
-
-Remove Labels Example:
-http://127.0.0.1:8000/updateLabels?imageID=42?labels=[]
-```
+You can add labels to an image. The labels are saved as a list of strings. You can add as many labels as you want. 
+Those can be used to search for images. You can also update the labels of an image.
 
 ## Metadata
 

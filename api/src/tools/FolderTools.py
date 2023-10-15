@@ -41,19 +41,18 @@ class FolderTools:
                 folders.append(item)
 
         if len(folders) == 0:
-            self.createFolder("0-100")
-            print("[Info] --> Created new folder: 0-100")
-            return self.dataFolder + "0-100/1-"
+            self.createFolder("1-100")
+            print("[Info] --> Created new folder: 1-100")
+            return self.dataFolder + "1-100/1-"
 
         folders.sort(key=lambda x: int(x.split('-')[-1]), reverse=True)
 
-        for i in range(len(folders)):
-            dirs = os.listdir(self.dataFolder + folders[i])
-            amount = len(dirs)
-            if amount < 100:
-                return self.dataFolder + folders[i] + "/" + str(int(folders[i].split('-')[0]) + amount) + "-"
-            else:
-                newFolder = str(int(folders[i].split('-')[0]) + 100) + "-" + str(int(folders[i].split('-')[1]) + 100)
-                self.createFolder(newFolder)
-                print("[Info] --> Created new folder: " + newFolder)
-                return self.dataFolder + newFolder + "/" + str(int(folders[i].split('-')[0]) + 100) + "-"
+        files = os.listdir(self.dataFolder + folders[-1])
+        amount = len(files)
+        if amount < 100:
+            return self.dataFolder + folders[-1] + "/" + str(int(folders[-1].split('-')[0]) + amount) + "-"
+        else:
+            newFolder = str(int(folders[-1].split('-')[0]) + 100) + "-" + str(int(folders[-1].split('-')[1]) + 100)
+            self.createFolder(newFolder)
+            print("[Info] --> Created new folder: " + newFolder)
+            return self.dataFolder + newFolder + "/" + str(int(folders[-1].split('-')[0]) + 100) + "-"
