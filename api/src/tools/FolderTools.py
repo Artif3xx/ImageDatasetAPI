@@ -45,7 +45,7 @@ class FolderTools:
             print("[Info] --> Created new folder: 1-100")
             return self.dataFolder + "1-100/1-"
 
-        folders.sort(key=lambda x: int(x.split('-')[-1]), reverse=True)
+        folders.sort(key=lambda x: int(x.split('-')[-1]), reverse=False)
 
         files = os.listdir(self.dataFolder + folders[-1])
         amount = len(files)
