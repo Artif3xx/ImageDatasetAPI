@@ -16,7 +16,7 @@ run:
 	$(PYTHON) -m main
 
 install:
-	${PIP} install -r requirements.txt & ${PIP} install -r api/requirements.txt
+	${PIP} install -r requirements.txt
 
 pylint:
 	@echo "Output will be saved in $(JSON_FILE) and $(TXT_FILE)"

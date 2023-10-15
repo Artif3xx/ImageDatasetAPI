@@ -1,19 +1,25 @@
 from fastapi import FastAPI, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 
-from api.endpoints import upload, image, labels, info
-from api.database.database import Database
+from api.src.endpoints import upload, image, info, item, search
 
-# init the database with the path to the database file
-Database('data/Database.db')
+from sqlalchemy.orm import Session
 
+from api.src.database import crud, models, schemas
+from api.src.database.database import get_db, engine
+
+models.Base.metadata.create_all(bind=engine)
+
+# create a fastapi instance
 app = FastAPI()
+# mount the static folder to the api
 
 # include route inside the endpoints folder
 app.include_router(upload.router)
 app.include_router(image.router)
-app.include_router(labels.router)
 app.include_router(info.router)
+app.include_router(item.router)
+app.include_router(search.router)
 
 
 @app.get("/")
@@ -23,4 +29,10 @@ async def root():
 
     :return: a redirect to the docs page
     """
-    return RedirectResponse(url='/docs')
+    return FileResponse("api/static/html/index.html")
+
+
+@app.get("/items/", response_model=list[schemas.Item])
+def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = crud.get_items(db, skip=skip, limit=limit)
+    return items
