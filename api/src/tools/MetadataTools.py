@@ -99,7 +99,7 @@ class MetadataTools:
                 return {}
 
     @staticmethod
-    def loadMetadataAsJson(path: str) -> json:
+    def loadMetadataAsJson(path: str) -> dict:
         """
         Load the metadata from an image file. The metadata will be returned as a json string.
 
@@ -107,7 +107,7 @@ class MetadataTools:
         :return: the metadata as a json object
         """
         data = MetadataTools.loadMetadata(path)
-        return json.dumps(data, skipkeys=True, default=str)
+        return json.loads(json.dumps(data, skipkeys=True, default=str))
 
     @staticmethod
     def printMetadata(path: str) -> None:
