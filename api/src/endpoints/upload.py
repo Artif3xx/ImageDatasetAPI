@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from api.src.tools.FolderTools import FolderTools
+from api.src.tools.MetadataTools import MetadataTools
 
 from api.src.database import crud, schemas
 from api.src.database.database import get_db
@@ -10,6 +11,8 @@ from sqlalchemy.orm import Session
 import ast
 
 router = APIRouter()
+
+allowed_content_type = ["jpeg", "jpg", "png"]
 
 
 @router.post('/upload', response_model=schemas.Item)
@@ -22,6 +25,14 @@ async def upload(file: UploadFile, labels: str | None = None, db: Session = Depe
     :param labels: the tags to add to the image as a list
     :return: a message if the file was saved or an error cure
     """
+
+    if file.filename.split('.')[-1] not in allowed_content_type:
+        raise HTTPException(status_code=400, detail={
+            "message": "The file type is not supported",
+            "file": file.filename,
+            "content_type": file.content_type,
+            "allowed_content_type": allowed_content_type})
+
     def save() -> str:
         # process the incoming file and save it according to the structure
         # replace underscores and spaces with dashes
@@ -38,7 +49,11 @@ async def upload(file: UploadFile, labels: str | None = None, db: Session = Depe
             string_list = ast.literal_eval(labels)
 
             if isinstance(string_list, list) and all(isinstance(item, str) for item in string_list):
-                return crud.create_item(db, schemas.ItemCreate(path=save(), labels=string_list, imageMetadata={}))
+                save()
+                return crud.create_item(db, schemas.ItemCreate(
+                    path=file.filename,
+                    labels=string_list,
+                    imageMetadata=MetadataTools.loadMetadataAsJson(file.filename)))
             else:
                 raise HTTPException(status_code=400, detail={
                     "message": "labels must be a list of stings formatted as a string",
@@ -52,4 +67,8 @@ async def upload(file: UploadFile, labels: str | None = None, db: Session = Depe
                 "error": str(e)})
     # handle request if labels are not used as parameter
     else:
-        return crud.create_item(db, schemas.ItemCreate(path=save(), labels=[], imageMetadata={}))
+        save()
+        return crud.create_item(db, schemas.ItemCreate(
+            path=file.filename,
+            labels=[],
+            imageMetadata=MetadataTools.loadMetadataAsJson(file.filename)))

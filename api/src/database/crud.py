@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+import os
 
 from . import models, schemas
 
@@ -59,6 +60,7 @@ def create_item(db: Session, item: schemas.ItemCreate):
         return db_item
     except Exception as e:
         db.rollback()
+        deleteFile(item.path)
         return {"error": str(e)}
 
 
@@ -84,3 +86,18 @@ def delete_item(db: Session, item: schemas.Item):
         return db_item
     except Exception as e:
         return {"error": str(e)}
+
+
+def deleteFile(filepath: str) -> bool:
+    """
+    Delete a file from the filesystem
+
+    :param filepath: the path to the file to delete
+    :return: True if the file was deleted, False if not
+    """
+    try:
+        os.remove(filepath)
+        return True
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return False
