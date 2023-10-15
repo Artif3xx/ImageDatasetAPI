@@ -7,7 +7,7 @@ class FolderTools:
     """
     dataFolder: str = ""
 
-    def __init__(self, dataFolder: str = "data/"):
+    def __init__(self, dataFolder: str = "./data/"):
         """
         Create a new FolderTools object
 

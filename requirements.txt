@@ -3,6 +3,7 @@ fastapi~=0.103.2
 pydantic~=2.4.2
 uvicorn
 python-multipart
-numpy
-scikit-image
-opencv-python
+numpy~=1.26.0
+scikit-image~=0.22.0
+opencv-python~=4.8.1.78
+SQLAlchemy~=2.0.22
