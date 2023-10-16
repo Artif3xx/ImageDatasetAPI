@@ -1,21 +1,49 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import Session
-import os
+from api.src.tools.FolderTools import FolderTools
+from logging import getLogger
 
 from . import models, schemas
 
+Logger = getLogger(__name__)
 
-def get_items(db: Session, skip: int = 0, limit: int = 100):
+
+def get_items(db: Session, skip: int = 0, limit: int | None = 100):
+    """
+    Get items from the database. This function is used to get all items from the database if the limit is set to None.
+    If the limit is set to a number, the function will return the first n items from the database
+
+    :param db: the database session, used to query the database
+    :param skip: the number of items to skip before returning the items
+    :param limit: the number of items to return, can be set to None to return all items
+    :return: the requested items from the database
+    """
     try:
+        if limit is None:
+            return db.query(models.Item).offset(skip).all()
         return db.query(models.Item).offset(skip).limit(limit).all()
     except Exception as e:
         db.rollback()
+        Logger.error(f"error: {str(e)}")
         return {"error": str(e)}
 
 
-def get_items_by_label(db: Session, labels: list[str], onlyOne: bool = False, skip: int = 0, limit: int = 100):
+def get_items_by_label(db: Session, labels: list[str], onlyOne: bool = False):
+    """
+    Get items from the database that have the specified labels. If onlyOne is set to True, the function will return
+    all items that have at least one of the labels. If onlyOne is set to False, the function will return all items
+    that have all the labels
+
+    :param db: the database session, used to query the database
+    :param labels: the labels to search for
+    :param onlyOne: if set to True, the function will return all items that have at least one of the labels. If set to
+        False, the function will return all items that have all the labels
+    :return: the requested items from the database
+    """
     try:
         items = []
-        for item in db.query(models.Item).offset(skip).limit(limit).all():
+        for item in db.query(models.Item).all():
             # if onlyOne is true, the item must have at least one of the labels
             if onlyOne:
                 # iterate over the labels and check if the item has the label
@@ -34,24 +62,37 @@ def get_items_by_label(db: Session, labels: list[str], onlyOne: bool = False, sk
                         break
                 if token:
                     items.append(item)
-
         return items
-
     except Exception as e:
         db.rollback()
-        print(f"An error occurred: {str(e)}")
+        Logger.error(f"error: {str(e)}")
         return []
 
 
 def get_item_by_id(db: Session, item_id: int):
+    """
+    Get an item from the database by its id
+
+    :param db: the database session, used to query the database
+    :param item_id: the id of the item to get
+    :return: the requested item from the database
+    """
     try:
         item = db.get(models.Item, item_id)
         return item
     except Exception as e:
+        Logger.error(f"error: {str(e)}")
         return {"error": str(e)}
 
 
 def create_item(db: Session, item: schemas.ItemCreate):
+    """
+    Create an item in the database
+
+    :param db: the database session, used to query the database
+    :param item: the new item to create
+    :return: the created item from the database
+    """
     try:
         db_item = models.Item(**item.model_dump())
         db.add(db_item)
@@ -60,11 +101,21 @@ def create_item(db: Session, item: schemas.ItemCreate):
         return db_item
     except Exception as e:
         db.rollback()
-        deleteFile(item.path)
+        FolderTools.deleteFile(item.path)
+        Logger.error(f"error: {str(e)}")
         return {"error": str(e)}
 
 
 def update_item(db: Session, item_id: int, item: schemas.ItemUpdate):
+    """
+    Update an item in the database
+
+    :param db: the database session, used to query the database
+    :param item_id: the id of the item to update
+    :param item: the new item to update
+    :return: the updated item from the database
+    """
+
     try:
         db_item = db.get(models.Item, item_id)
         db_item.labels = item.labels
@@ -74,30 +125,25 @@ def update_item(db: Session, item_id: int, item: schemas.ItemUpdate):
         return db_item
     except Exception as e:
         db.rollback()
+        Logger.error(f"error: {str(e)}")
         return {"error": str(e)}
 
 
 def delete_item(db: Session, item: schemas.Item):
+    """
+    Delete an item from the database
+
+    :param db: the database session, used to query the database
+    :param item: the item to delete
+    :return: the deleted item from the database
+    """
     try:
         db_item = db.get(models.Item, item.id)
         db.delete(db_item)
         db.commit()
         db.refresh(db_item)
+        Logger.info(f"file deleted: {item.path}")
         return db_item
     except Exception as e:
+        Logger.error(f"error: {str(e)}")
         return {"error": str(e)}
-
-
-def deleteFile(filepath: str) -> bool:
-    """
-    Delete a file from the filesystem
-
-    :param filepath: the path to the file to delete
-    :return: True if the file was deleted, False if not
-    """
-    try:
-        os.remove(filepath)
-        return True
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        return False

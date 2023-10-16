@@ -1,4 +1,7 @@
 import os
+from logging import getLogger
+
+Logger = getLogger(__name__)
 
 
 class FolderTools:
@@ -42,7 +45,7 @@ class FolderTools:
 
         if len(folders) == 0:
             self.createFolder("1-100")
-            print("[Info] --> Created new folder: 1-100")
+            Logger.info("Created new folder: 1-100")
             return self.dataFolder + "1-100/1-"
 
         folders.sort(key=lambda x: int(x.split('-')[-1]), reverse=False)
@@ -54,5 +57,21 @@ class FolderTools:
         else:
             newFolder = str(int(folders[-1].split('-')[0]) + 100) + "-" + str(int(folders[-1].split('-')[1]) + 100)
             self.createFolder(newFolder)
-            print("[Info] --> Created new folder: " + newFolder)
+            Logger.info(f"Created new folder: {newFolder}")
             return self.dataFolder + newFolder + "/" + str(int(folders[-1].split('-')[0]) + 100) + "-"
+
+    @staticmethod
+    def deleteFile(filepath: str) -> bool:
+        """
+        Delete a file from the filesystem
+
+        :param filepath: the path to the file to delete
+        :return: True if the file was deleted, False if not
+        """
+        try:
+            os.remove(filepath)
+            Logger.info(f"Deleted file: {filepath}")
+            return True
+        except Exception as e:
+            Logger.error(f"error: {str(e)}")
+            return False
