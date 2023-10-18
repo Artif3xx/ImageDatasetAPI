@@ -8,8 +8,10 @@ from api.src.database import crud, schemas
 from api.src.database.database import get_db
 from sqlalchemy.orm import Session
 
+from logging import getLogger
 import ast
 
+Logger = getLogger(__name__)
 router = APIRouter()
 
 allowed_content_type = ["jpeg", "jpg", "png"]
@@ -41,6 +43,7 @@ async def upload(file: UploadFile, labels: str | None = None, db: Session = Depe
         file.filename = FolderTools().getNextFilePosition() + file.filename
         with open(file.filename, "wb") as f:
             f.write(file.file.read())
+        Logger.info(f"file saved: {file.filename}")
         return file.filename
 
     # handle request if labels are used as parameter
