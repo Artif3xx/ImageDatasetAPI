@@ -7,3 +7,4 @@ numpy~=1.26.0
 scikit-image~=0.22.0
 opencv-python~=4.8.1.78
 SQLAlchemy~=2.0.22
+jinja2
