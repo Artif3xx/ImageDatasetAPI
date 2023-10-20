@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Depends
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 
 from api.src.endpoints import upload, image, info, item, search
 from api.src.database import models
