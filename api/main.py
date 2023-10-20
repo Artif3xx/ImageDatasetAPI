@@ -1,6 +1,5 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from api.src.endpoints import upload, image, info, item, search
@@ -31,4 +30,3 @@ async def root(request: Request):
     :return: a redirect to the docs page
     """
     return templates.TemplateResponse("index.html", {'request': request})
-
