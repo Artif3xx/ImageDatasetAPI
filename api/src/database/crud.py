@@ -42,27 +42,17 @@ def get_items_by_label(db: Session, labels: list[str], onlyOne: bool = False):
     :return: the requested items from the database
     """
     try:
-        items = []
-        for item in db.query(models.Item).all():
-            # if onlyOne is true, the item must have at least one of the labels
-            if onlyOne:
-                # iterate over the labels and check if the item has the label
-                for label in labels:
-                    # check if the label is in the items labels
-                    if label in item.labels:
-                        items.append(item)
-                        # exit the inner loop when a match is found
-                        break
-            # if onlyOne is false, the item must have all the labels
-            else:
-                token = True
-                for label in labels:
-                    if label not in item.labels:
-                        token = False
-                        break
-                if token:
-                    items.append(item)
+        label_set = set(labels)
+
+        if onlyOne:
+            # use any to return true if any label matches
+            items = [item for item in db.query(models.Item).all() if any(label in item.labels for label in label_set)]
+        else:
+            # use all to return true only if all labels match
+            items = [item for item in db.query(models.Item).all() if all(label in item.labels for label in label_set)]
+
         return items
+
     except Exception as e:
         db.rollback()
         Logger.error(f"error: {str(e)}")

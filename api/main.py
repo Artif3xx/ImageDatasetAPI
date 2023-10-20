@@ -1,5 +1,7 @@
-from fastapi import FastAPI, Depends
-from fastapi.responses import FileResponse
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from api.src.endpoints import upload, image, info, item, search
 
@@ -9,6 +11,7 @@ from api.src.database import crud, models, schemas
 from api.src.database.database import get_db, engine
 
 models.Base.metadata.create_all(bind=engine)
+templates = Jinja2Templates(directory="api/templates")
 
 # create a fastapi instance
 app = FastAPI()
