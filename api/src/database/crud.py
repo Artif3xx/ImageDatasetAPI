@@ -193,3 +193,15 @@ def delete_item(db: Session, item: schemas.Item):
         db.rollback()
         Logger.error("SQLAlchemyError: %s", str(e))
         return {"error": "SQLAlchemyError: " + str(e)}
+
+
+def get_next_item(db: Session, item: schemas.Item):
+    current_id = item.id
+    next_item = db.query(models.Item).filter(models.Item.id > current_id).first()
+    return next_item if next_item else None
+
+
+def get_previous_item(db: Session, item: schemas.Item):
+    current_id = item.id
+    previous_item = db.query(models.Item).filter(models.Item.id < current_id).order_by(models.Item.id.desc()).first()
+    return previous_item if previous_item else None

@@ -80,3 +80,25 @@ async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
     if itemCheck is None:
         raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
     return crud.delete_item(db, item=itemCheck)
+
+
+@router.get("/item/{item_id}/next", response_model=schemas.Item)
+async def get_next_item(item_id: int, db: Session = Depends(get_db)):
+    item = crud.get_item_by_id(db, item_id=item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
+    next_item = crud.get_next_item(db, item=item)
+    if next_item is None:
+        raise HTTPException(status_code=404, detail=f"Item with id {item_id} was the last item!")
+    return next_item
+
+
+@router.get("/item/{item_id}/previous", response_model=schemas.Item)
+async def get_previous_item(item_id: int, db: Session = Depends(get_db)):
+    item = crud.get_item_by_id(db, item_id=item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
+    previous_item = crud.get_previous_item(db, item=item)
+    if previous_item is None:
+        raise HTTPException(status_code=404, detail=f"Item with id {item_id} was the first item!")
+    return previous_item
