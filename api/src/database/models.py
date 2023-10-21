@@ -1,10 +1,15 @@
+"""
+This file holds the base item from the database.
+"""
 from sqlalchemy import Column, Integer, String, JSON, PickleType
-from sqlalchemy.orm import relationship
 
 from .database import Base
 
 
 class Item(Base):
+    """
+    base item from the database.
+    """
     __tablename__ = "Images"
 
     id = Column(Integer, primary_key=True, index=True)

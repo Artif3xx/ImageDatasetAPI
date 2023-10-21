@@ -1,19 +1,21 @@
+"""
+this file contains the /info endpoints for the api
+"""
 from __future__ import annotations
+import json
 
 from fastapi import APIRouter
-import json
 
 
 router = APIRouter()
 
 
 @router.get("/info")
-async def getImageInfoByID():
+async def get_api_info():
     """
     Get information about the image server and the api
 
     :return: the info as a json string
     """
-
-    info = json.load(open("package.json"))
-    return {"info": info}
+    info = json.loads("api/package.json")
+    return info

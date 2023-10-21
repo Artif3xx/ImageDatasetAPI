@@ -1,9 +1,13 @@
+"""
+this file contains the /item endpoints for the api
+"""
+
 from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 
+from sqlalchemy.orm import Session
 from api.src.database import crud, schemas
 from api.src.database.database import get_db
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 

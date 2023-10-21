@@ -1,15 +1,19 @@
+"""
+this file contains the /upload endpoints for the api
+"""
+
 from __future__ import annotations
+import ast
+from logging import getLogger
 
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
-from api.src.tools.FolderTools import FolderTools
-from api.src.tools.MetadataTools import MetadataTools
-
-from api.src.database import crud, schemas
-from api.src.database.database import get_db
 from sqlalchemy.orm import Session
 
-from logging import getLogger
-import ast
+from api.src.tools.FolderTools import FolderTools
+from api.src.tools.MetadataTools import MetadataTools
+from api.src.database import crud, schemas
+from api.src.database.database import get_db
+
 
 Logger = getLogger(__name__)
 router = APIRouter()
@@ -18,7 +22,7 @@ allowed_content_type = ["jpeg", "jpg", "png"]
 
 
 @router.post('/upload', response_model=schemas.Item)
-async def upload(file: UploadFile, labels: str | None = None, db: Session = Depends(get_db)):
+async def upload_image(file: UploadFile, labels: str | None = None, db: Session = Depends(get_db)):
     """
     Upload an image file to the database. This is the main upload route. All incoming pictures will be processed here
 
@@ -43,7 +47,7 @@ async def upload(file: UploadFile, labels: str | None = None, db: Session = Depe
         file.filename = FolderTools().getNextFilePosition() + file.filename
         with open(file.filename, "wb") as f:
             f.write(file.file.read())
-        Logger.info(f"file saved: {file.filename}")
+        Logger.info("file saved: %s", file.filename)
         return file.filename
 
     # handle request if labels are used as parameter
@@ -57,11 +61,10 @@ async def upload(file: UploadFile, labels: str | None = None, db: Session = Depe
                     path=file.filename,
                     labels=string_list,
                     imageMetadata=MetadataTools.loadMetadataAsJson(file.filename)))
-            else:
-                raise HTTPException(status_code=400, detail={
-                    "message": "labels must be a list of stings formatted as a string",
-                    "labels": labels,
-                    "example": "[\"label1\", \"label2\"]"})
+            raise HTTPException(status_code=400, detail={
+                "message": "labels must be a list of stings formatted as a string",
+                "labels": labels,
+                "example": "[\"label1\", \"label2\"]"})
         except (SyntaxError, ValueError) as e:
             raise HTTPException(status_code=400, detail={
                 "message": "labels must be a list of stings formatted as a string",

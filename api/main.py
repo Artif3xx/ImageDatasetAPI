@@ -1,14 +1,13 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, FileResponse
+"""
+Main file of the fastapi. All the structured things are located here.
+"""
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 
 from api.src.endpoints import upload, image, info, item, search
-
-from sqlalchemy.orm import Session
-
-from api.src.database import crud, models, schemas
-from api.src.database.database import get_db, engine
+from api.src.database import models
+from api.src.database.database import engine
 
 models.Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="api/templates")
@@ -25,12 +24,11 @@ app.include_router(item.router)
 app.include_router(search.router)
 
 
-@app.get("/")
-async def root():
+@app.get("/", response_class=HTMLResponse)
+async def get_index(request: Request):
     """
-    Redirects to the docs page
+    get the main index page of the project
 
-    :return: a redirect to the docs page
+    :return: the index template as response
     """
-    return FileResponse("api/static/html/index.html")
-
+    return templates.TemplateResponse("index.html", {"request": request})

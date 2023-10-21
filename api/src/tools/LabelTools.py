@@ -1,3 +1,8 @@
+"""
+simple label tools for the api. This file contains some usefully functions for label management. You can use the
+functions to detect duplications or find duplicated labels. This class is mostly used for cleaning up the database
+and filesystem
+"""
 
 
 class LabelTools:

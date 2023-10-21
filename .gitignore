@@ -3,3 +3,10 @@ data
 venv
 out
 
+# ignore pycache files
+**.pyc
+*.pyc
+.DS_Store
+
+# ignore /docs folder untill we have a nice looking doc
+docs

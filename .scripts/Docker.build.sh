@@ -17,7 +17,7 @@ fi
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ start ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 # define the path to the package.json file inside the project
-PACKAGE_JSON_PATH="./package.json"
+PACKAGE_JSON_PATH="./api/package.json"
 
 # check if the package.json file exists
 if [ -f "$PACKAGE_JSON_PATH" ]; then

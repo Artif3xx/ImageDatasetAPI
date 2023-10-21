@@ -19,8 +19,13 @@ install:
 	${PIP} install -r requirements.txt
 
 pylint:
+# check if pylint is installed, if not install it
+	@if ! $(PYTHON) -c "import pylint" 2>/dev/null; then \
+    	echo "pylint is not installed. Installing..."; \
+    	$(PYTHON) -m pip install pylint; \
+    fi
 	@echo "Output will be saved in $(JSON_FILE) and $(TXT_FILE)"
-	pylint $$(git ls-files '*.py') --rcfile=docs/.pylintrc --output-format=text:$(TXT_FILE),json:$(JSON_FILE) --disable=E1101,R0903,W0107
+	pylint $$(git ls-files 'api/*.py') --rcfile=docs/.pylintrc --output-format=text:$(TXT_FILE),json:$(JSON_FILE) --disable=E1101,R0903,W0107,W0212
 
 pytest:
 # check if pytest is installed, if not install it

@@ -1,8 +1,13 @@
+"""
+This file contains the endpoints for images. This is the best way to get images to process. Images will be responded
+as FileResponse. Look inside the /example folder for more information about the usage
+"""
+
 from __future__ import annotations
+import os
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
-import os
 
 from api.src.database import crud
 from api.src.database.database import get_db
@@ -11,7 +16,7 @@ router = APIRouter()
 
 
 @router.get("/image/{image_id}")
-async def getImageByID(image_id: int, db=Depends(get_db)):
+async def get_image_by_id(image_id: int, db=Depends(get_db)):
     """
     Get an image by the imageID. This simply returns the image as a file response. If you want to get the image info,
     you need to request the info endpoint. You need at least one parameter to get an image. If you pass both parameters,
@@ -29,19 +34,17 @@ async def getImageByID(image_id: int, db=Depends(get_db)):
         # check if an error occurred
         if imageData is None:
             raise HTTPException(status_code=400, detail={"error": "id not found in the database"})
-        else:
-            filepath = imageData.path
+        filepath = imageData.path
 
     # check if the image exists
     if os.path.exists(filepath):
         # TODO: if a filepath is given but not existing, the server should handle this and update the database entry
         return FileResponse(filepath, headers={"Content-Type": "image/jpeg"})
-    else:
-        raise HTTPException(status_code=400, detail={"error": "file not found in the filesystem"})
+    raise HTTPException(status_code=400, detail={"error": "file not found in the filesystem"})
 
 
 @router.get("/image/random")
-async def getImageRandom(labels: str | None = None):
+async def get_random_image(labels: str | None = None):
     """
     Get a random image from the database. You can also pass a list of labels to get a random image with these labels.
     There must be at least one label inside a array. Example: ["label1", "label2"]. If you don´t want to search for

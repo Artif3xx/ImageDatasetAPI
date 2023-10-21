@@ -1,0 +1,11 @@
+{
+    "name": "image-dataset-api",
+    "version": "0.1.11",
+    "license": "",
+    "author": "castox",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Artif3xx/ImageDatasetAPI"
+    },
+    "description": "A simple docker based application to store and label images. Metadata of images will automatically be extracted and stored as well."
+}
