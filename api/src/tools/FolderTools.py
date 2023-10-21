@@ -77,6 +77,12 @@ class FolderTools:
             os.remove(filepath)
             Logger.info("Deleted file: %s", filepath)
             return True
-        except Exception as e:
-            Logger.error("error: %s", str(e))
+        except FileNotFoundError:
+            Logger.warning("File not found: %s", filepath)
+            return False
+        except PermissionError:
+            Logger.error("Permission denied to delete file: %s", filepath)
+            return False
+        except IsADirectoryError:
+            Logger.error("Cannot delete a directory: %s", filepath)
             return False

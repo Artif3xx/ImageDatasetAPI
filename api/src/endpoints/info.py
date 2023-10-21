@@ -17,6 +17,5 @@ async def get_api_info():
 
     :return: the info as a json string
     """
-
-    info = json.load(open("package.json"))
-    return {"info": info}
+    info = json.loads("api/package.json")
+    return info

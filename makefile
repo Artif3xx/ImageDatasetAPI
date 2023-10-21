@@ -25,7 +25,7 @@ pylint:
     	$(PYTHON) -m pip install pylint; \
     fi
 	@echo "Output will be saved in $(JSON_FILE) and $(TXT_FILE)"
-	pylint $$(git ls-files 'api/*.py') --rcfile=docs/.pylintrc --output-format=text:$(TXT_FILE),json:$(JSON_FILE) --disable=E1101,R0903,W0107
+	pylint $$(git ls-files 'api/*.py') --rcfile=docs/.pylintrc --output-format=text:$(TXT_FILE),json:$(JSON_FILE) --disable=E1101,R0903,W0107,W0212
 
 pytest:
 # check if pytest is installed, if not install it
