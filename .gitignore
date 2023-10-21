@@ -3,5 +3,7 @@ data
 venv
 out
 
+# ignore pycache files
 **.pyc
+*.pyc
 .DS_Store
