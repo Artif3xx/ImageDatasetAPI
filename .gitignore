@@ -7,3 +7,6 @@ out
 **.pyc
 *.pyc
 .DS_Store
+
+# ignore /docs folder untill we have a nice looking doc
+docs

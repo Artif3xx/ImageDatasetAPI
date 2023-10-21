@@ -1,8 +1,14 @@
+"""
+Crud repository of the projects. All the database related functions are located here.
+crud stands for c - create, r - request, u - update and d - delete.
+"""
+
 from __future__ import annotations
 
-from sqlalchemy.orm import Session
-from api.src.tools.FolderTools import FolderTools
 from logging import getLogger
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DataError
+from api.src.tools.FolderTools import FolderTools
 
 from . import models, schemas
 
@@ -23,10 +29,18 @@ def get_items(db: Session, skip: int = 0, limit: int | None = 100):
         if limit is None:
             return db.query(models.Item).offset(skip).all()
         return db.query(models.Item).offset(skip).limit(limit).all()
-    except Exception as e:
+    except IntegrityError as e:
         db.rollback()
-        Logger.error(f"error: {str(e)}")
-        return {"error": str(e)}
+        Logger.error("IntegrityError: %s", str(e))
+        return {"error": "IntegrityError: " + str(e)}
+    except DataError as e:
+        db.rollback()
+        Logger.error("DataError: %s", str(e))
+        return {"error": "DataError: " + str(e)}
+    except SQLAlchemyError as e:
+        db.rollback()
+        Logger.error("SQLAlchemyError: %s", str(e))
+        return {"error": "SQLAlchemyError: " + str(e)}
 
 
 def get_items_by_label(db: Session, labels: list[str], onlyOne: bool = False):
@@ -43,20 +57,25 @@ def get_items_by_label(db: Session, labels: list[str], onlyOne: bool = False):
     """
     try:
         label_set = set(labels)
-
         if onlyOne:
             # use any to return true if any label matches
             items = [item for item in db.query(models.Item).all() if any(label in item.labels for label in label_set)]
         else:
             # use all to return true only if all labels match
             items = [item for item in db.query(models.Item).all() if all(label in item.labels for label in label_set)]
-
         return items
-
-    except Exception as e:
+    except IntegrityError as e:
         db.rollback()
-        Logger.error(f"error: {str(e)}")
-        return []
+        Logger.error("IntegrityError: %s", str(e))
+        return {"error": "IntegrityError: " + str(e)}
+    except DataError as e:
+        db.rollback()
+        Logger.error("DataError: %s", str(e))
+        return {"error": "DataError: " + str(e)}
+    except SQLAlchemyError as e:
+        db.rollback()
+        Logger.error("SQLAlchemyError: %s", str(e))
+        return {"error": "SQLAlchemyError: " + str(e)}
 
 
 def get_item_by_id(db: Session, item_id: int):
@@ -70,9 +89,18 @@ def get_item_by_id(db: Session, item_id: int):
     try:
         item = db.get(models.Item, item_id)
         return item
-    except Exception as e:
-        Logger.error(f"error: {str(e)}")
-        return {"error": str(e)}
+    except IntegrityError as e:
+        db.rollback()
+        Logger.error("IntegrityError: %s", str(e))
+        return {"error": "IntegrityError: " + str(e)}
+    except DataError as e:
+        db.rollback()
+        Logger.error("DataError: %s", str(e))
+        return {"error": "DataError: " + str(e)}
+    except SQLAlchemyError as e:
+        db.rollback()
+        Logger.error("SQLAlchemyError: %s", str(e))
+        return {"error": "SQLAlchemyError: " + str(e)}
 
 
 def create_item(db: Session, item: schemas.ItemCreate):
@@ -89,11 +117,21 @@ def create_item(db: Session, item: schemas.ItemCreate):
         db.commit()
         db.refresh(db_item)
         return db_item
-    except Exception as e:
+    except IntegrityError as e:
         db.rollback()
         FolderTools.deleteFile(item.path)
-        Logger.error(f"error: {str(e)}")
-        return {"error": str(e)}
+        Logger.error("IntegrityError: %s", str(e))
+        return {"error": "IntegrityError: " + str(e)}
+    except DataError as e:
+        db.rollback()
+        FolderTools.deleteFile(item.path)
+        Logger.error("DataError: %s", str(e))
+        return {"error": "DataError: " + str(e)}
+    except SQLAlchemyError as e:
+        db.rollback()
+        FolderTools.deleteFile(item.path)
+        Logger.error("SQLAlchemyError: %s", str(e))
+        return {"error": "SQLAlchemyError: " + str(e)}
 
 
 def update_item(db: Session, item_id: int, item: schemas.ItemUpdate):
@@ -113,10 +151,18 @@ def update_item(db: Session, item_id: int, item: schemas.ItemUpdate):
         db.commit()
         db.refresh(db_item)
         return db_item
-    except Exception as e:
+    except IntegrityError as e:
         db.rollback()
-        Logger.error(f"error: {str(e)}")
-        return {"error": str(e)}
+        Logger.error("IntegrityError: %s", str(e))
+        return {"error": "IntegrityError: " + str(e)}
+    except DataError as e:
+        db.rollback()
+        Logger.error("DataError: %s", str(e))
+        return {"error": "DataError: " + str(e)}
+    except SQLAlchemyError as e:
+        db.rollback()
+        Logger.error("SQLAlchemyError: %s", str(e))
+        return {"error": "SQLAlchemyError: " + str(e)}
 
 
 def delete_item(db: Session, item: schemas.Item):
@@ -132,8 +178,18 @@ def delete_item(db: Session, item: schemas.Item):
         db.delete(db_item)
         db.commit()
         db.refresh(db_item)
-        Logger.info(f"file deleted: {item.path}")
+        FolderTools.deleteFile(item.path)
+        Logger.info("file deleted: %s", item.path)
         return db_item
-    except Exception as e:
-        Logger.error(f"error: {str(e)}")
-        return {"error": str(e)}
+    except IntegrityError as e:
+        db.rollback()
+        Logger.error("IntegrityError: %s", str(e))
+        return {"error": "IntegrityError: " + str(e)}
+    except DataError as e:
+        db.rollback()
+        Logger.error("DataError: %s", str(e))
+        return {"error": "DataError: " + str(e)}
+    except SQLAlchemyError as e:
+        db.rollback()
+        Logger.error("SQLAlchemyError: %s", str(e))
+        return {"error": "SQLAlchemyError: " + str(e)}

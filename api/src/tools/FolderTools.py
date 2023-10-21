@@ -1,3 +1,8 @@
+"""
+simple folder tools for the api. This file contains the functions to create a new folder and get the next file path.
+There is also a static method to delete a file by its filename.
+"""
+
 import os
 from logging import getLogger
 
@@ -54,11 +59,11 @@ class FolderTools:
         amount = len(files)
         if amount < 100:
             return self.dataFolder + folders[-1] + "/" + str(int(folders[-1].split('-')[0]) + amount) + "-"
-        else:
-            newFolder = str(int(folders[-1].split('-')[0]) + 100) + "-" + str(int(folders[-1].split('-')[1]) + 100)
-            self.createFolder(newFolder)
-            Logger.info(f"Created new folder: {newFolder}")
-            return self.dataFolder + newFolder + "/" + str(int(folders[-1].split('-')[0]) + 100) + "-"
+
+        newFolder = str(int(folders[-1].split('-')[0]) + 100) + "-" + str(int(folders[-1].split('-')[1]) + 100)
+        self.createFolder(newFolder)
+        Logger.info("Created new folder: %s", newFolder)
+        return self.dataFolder + newFolder + "/" + str(int(folders[-1].split('-')[0]) + 100) + "-"
 
     @staticmethod
     def deleteFile(filepath: str) -> bool:
@@ -70,8 +75,8 @@ class FolderTools:
         """
         try:
             os.remove(filepath)
-            Logger.info(f"Deleted file: {filepath}")
+            Logger.info("Deleted file: %s", filepath)
             return True
         except Exception as e:
-            Logger.error(f"error: {str(e)}")
+            Logger.error("error: %s", str(e))
             return False

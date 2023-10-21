@@ -1,3 +1,6 @@
+"""
+Main file of the fastapi. All the structured things are located here.
+"""
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -22,11 +25,10 @@ app.include_router(search.router)
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+async def get_index(request: Request):
     """
     get the main index page of the project
 
     :return: the index template as response
     """
     return templates.TemplateResponse("index.html", {"request": request})
-

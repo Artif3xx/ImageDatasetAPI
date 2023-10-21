@@ -1,5 +1,13 @@
-from PIL import Image, ExifTags
+"""
+simple metadata tools for the api. This class contains functions to extract metadata from an image. Collected data will
+automatically be saved in the database after uploading an image.
+
+You can define key´s to ignore wile collecting metadata. The preset values are:
+['MakerNote', 'Location', 'Latitude', 'Altitude', 'AppleID', 'GPSInfo']
+"""
+
 import json
+from PIL import Image, ExifTags
 
 # this tags will be ignored when loading the metadata
 ignoreTags = ['MakerNote', 'Location', 'Latitude', 'Altitude', 'AppleID', 'GPSInfo']
@@ -95,8 +103,8 @@ class MetadataTools:
                         except TypeError:
                             continue
                 return metadata
-            else:
-                return {}
+
+            return {}
 
     @staticmethod
     def loadMetadataAsJson(path: str) -> dict:
