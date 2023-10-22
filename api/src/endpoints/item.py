@@ -55,13 +55,15 @@ async def update_item_by_id(item_id: int, item: schemas.ItemUpdate, db: Session 
     :param item: the new item
     :return: the updated item
     """
-    if item.labels is None:
+
+    if item.labels is None and item.imageMetadata is None:
         raise HTTPException(status_code=400,
-                            detail="Labels cannot be empty. There must be at least an empty list")
-    if item.imageMetadata is None:
-        raise HTTPException(status_code=400,
-                            detail="ImageMetadata cannot be empty. There must be at least an empty dict")
+                            detail="Labels and ImageMetadata cannot be empty. There must be at least one empty list or dictionary")
     itemCheck = crud.get_item_by_id(db, item_id=item_id)
+    if item.imageMetadata is None:
+        item.imageMetadata = itemCheck.imageMetadata
+    if item.labels is None:
+        item.labels = itemCheck.labels
     if itemCheck is None:
         raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
     return crud.update_item(db, item_id=item_id, item=item)

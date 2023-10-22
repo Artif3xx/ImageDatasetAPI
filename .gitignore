@@ -10,3 +10,4 @@ out
 
 # ignore /docs folder untill we have a nice looking doc
 docs
+/examples/upload/
