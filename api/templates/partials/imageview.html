@@ -20,8 +20,10 @@
                     <li><a class="dropdown-item" href="#">download</a></li>
                     <li><a class="dropdown-item" href="#">share</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><button id="updateButton" class="dropdown-item">update</button></li>
-                    <li><button id="deleteButton" class="dropdown-item">delete</button></li>
+                    <li><button id="updateButton" type="button" class="dropdown-item" data-bs-toggle="modal"
+                                data-bs-target="#updateModal">update</button></li>
+                    <li><button id="deleteButton" type="button" class="dropdown-item text-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">delete</button></li>
                 </ul>
             </div>
             <div class="col-4 d-flex justify-content-end">
@@ -30,7 +32,9 @@
         </nav>
         <div class="row">
             <div class="col-7">
-                <img id="imageDisplay" src="/image/1" class="img-fluid" alt="Image">
+                <figure class="figure">
+                    <img id="imageDisplay" src="/image/1" class="figure-img img-fluid" alt="Image">
+                </figure>
             </div>
             <div class="col-5 border rounded bg-body-tertiary">
                 <div class="mt-1">
@@ -43,9 +47,47 @@
                     <ul id="metadata">
                     </ul>
                 </div>
-                <pre id="jsonDisplay"></pre>
+                <pre id="jsonDisplay" class="overflow-auto"></pre>
             </div>
         </div>
+</div>
+
+<!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">Update Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Commit changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Delete Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger">delete Item</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
