@@ -35,3 +35,8 @@ async def get_index(request: Request):
     :return: the index template as response
     """
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/docswrap", response_class=HTMLResponse)
+async def get_docswrap(request: Request):
+    return templates.TemplateResponse("docswrap.html", {"request": request})

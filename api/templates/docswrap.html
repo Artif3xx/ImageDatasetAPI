@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    {% include 'partials/head.html' %}
+    <title>DocsWrap</title>
+</head>
+<body>
+{% include 'partials/navbar.html' %}
+
+    <div class="embed-responsive embed-responsive-1by1 vh-100">
+        <iframe class="embed-responsive-item" src="/docs" width="100%" id="swaggerFrame"></iframe>
+    </div>
+
+    <script>
+        function adjustIframeHeight() {
+            const iframe = document.getElementById("swaggerFrame");
+            if (iframe) {
+                iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+            }
+        }
+        window.addEventListener("load", adjustIframeHeight);
+        window.addEventListener("resize", adjustIframeHeight);
+    </script>
+
+{% include 'partials/footer.html' %}
+</body>
+</html>
+

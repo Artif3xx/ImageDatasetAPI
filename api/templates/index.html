@@ -15,23 +15,160 @@
             <button class="btn btn-outline-secondary" type="button" id="imageSearch_button">search</button>
         </div>
     </form>
+</div>
 
-    <div>
-        <ul class="list-group imageSearch_results">
-          <li class="list-group-item">
-              <ul class="list-group list-group-horizontal">
-                  <li class="list-group-item">id</li>
-                  <li class="list-group-item">A second item</li>
-                  <li class="list-group-item">A third item</li>
-              </ul>
-          </li>
-        </ul>
-
+<div class="container-sm">
+    <div class="row">
+        <div class="col-12 text-center mt-3">
+            <h3>Image Gallery</h3>
+        </div>
     </div>
+    <div class="row border p-3 rounded">
+        <div class="col-2 d-flex justify-content-start">
+            <button id="previousButton" class="btn btn-primary btn-block">previous</button>
+        </div>
+        <div class="col-8 text-center">
+            <input type="number" id="idInput" class="form-control" value="1">
+        </div>
+        <div class="col-2 d-flex justify-content-end">
+            <button id="nextButton" class="btn btn-primary btn-block">next</button>
+        </div>
+    </div>
+    <form class="mt-2">
+        <div class="row border p-3 rounded">
+            <div class="col-8 text-center">
+                <img id="imageDisplay" src="/image/1" class="img-fluid" alt="Image">
+            </div>
+            <div class="col-4">
+                <div>
+                    <h5>Labels</h5>
+                    <ul id="labels">
+                        <!-- Hier werden Labels eingefügt -->
+                    </ul>
+                </div>
+                <div>
+                    <h5>Metadaten</h5>
+                    <ul id="metadata">
+                        <!-- Hier werden Metadaten eingefügt -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
+
 
 </div>
 
+<style>
+    #imageDisplay {
+        max-height: 720px; /* Ändere die maximale Höhe nach Bedarf */
+        width: auto;
+        position: relative;
+    }
+</style>
 
+<script>
+    let aktuelleID = 1; // Die aktuelle ID des angezeigten Bildes
 
-{% include 'partials/footer.html' %}</body>
+    const nextButton = document.getElementById("nextButton");
+    const previousButton = document.getElementById("previousButton");
+    const imageDisplay = document.getElementById("imageDisplay");
+    const idInput = document.getElementById("idInput");
+
+    idInput.addEventListener("change", function() {
+        aktuelleID = parseInt(idInput.value);
+        update_image();
+    });
+
+    nextButton.addEventListener("click", function() {
+        const item = get_next_id();
+        idInput.value = aktuelleID;
+        update_image();
+        update_labels(item);
+    });
+
+    previousButton.addEventListener("click", function() {
+        const item = get_previous_id();
+        idInput.value = aktuelleID;
+        update_image();
+        update_labels(item);
+    });
+
+    async function get_item() {
+        try {
+            const response = await fetch("/item/" + aktuelleID);
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des Elements.");
+                return;
+            }
+            return await response.json();
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    async function get_next_id() {
+        if (aktuelleID < 1) {
+            aktuelleID = 1;
+        }
+        const letzteID = aktuelleID;
+        try {
+            const response = await fetch("/item/" + aktuelleID + "/next");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des nächsten Elements.");
+                return;
+            }
+            const nextData = await response.json();
+            aktuelleID = parseInt(nextData.id);
+            return nextData;
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+            aktuelleID = letzteID;
+        }
+    }
+
+    async function get_previous_id() {
+        if (aktuelleID < 1) {
+            aktuelleID = 1;
+            return;
+        }
+        const letzteID = aktuelleID;
+        try {
+            const response = await fetch("/item/" + aktuelleID + "/previous");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des nächsten Elements.");
+                return;
+            }
+            const previousData = await response.json();
+            aktuelleID = parseInt(previousData.id);
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+            aktuelleID = letzteID;
+        }
+    }
+
+    function update_image() {
+        if (aktuelleID < 1) {
+            aktuelleID = 1;
+        }
+        imageDisplay.src = "/image/" + aktuelleID;
+    }
+
+    async function update_labels(item) {
+        const labelsList = item.labels;
+        const labelsElement = document.getElementById("labels");
+
+        if (labelsElement) {
+            labelsList.forEach(label => {
+                const li = document.createElement("li");
+                li.textContent = String(label);
+                labelsElement.appendChild(li);
+            });
+        }
+    }
+
+</script>
+
+{% include 'partials/footer.html' %}
+</body>
 </html>
