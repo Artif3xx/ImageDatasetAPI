@@ -2,52 +2,57 @@
 <link href="{{ url_for('static', path='/css/style.css') }}" rel="stylesheet">
 
 <div class="container-sm mt-2">
-    <div class="row">
-        <div class="col-12 text-center mt-3">
-            <h3>Image Gallery</h3>
-        </div>
-    </div>
-    <div class="row border p-3 rounded">
-        <div class="col-2 d-flex justify-content-start">
-            <button id="previousButton" class="btn btn-primary btn-block">previous</button>
-        </div>
-        <div class="col-8 text-center">
-            <input type="number" id="idInput" class="form-control" value="1">
-        </div>
-        <div class="col-2 d-flex justify-content-end">
-            <button id="nextButton" class="btn btn-primary btn-block">next</button>
-        </div>
-    </div>
-    <form class="mt-2">
-        <div class="row border p-3 rounded">
-            <div class="col-8 text-center">
+        <nav class="row border rounded navbar mb-2">
+            <div class="col-4 d-flex justify-content-start">
+                <button id="previousButton" class="btn btn-primary btn-block">previous</button>
+            </div>
+            <div class="col-1 d-flex">
+                <label for="idInput" class="col-form-label">Image ID</label>
+            </div>
+            <div class="col-1 d-flex">
+                <input type="number" id="idInput" class="form-control" value="1" placeholder="ID">
+            </div>
+            <div class="col-2 btn-group">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    Item Actions
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">download</a></li>
+                    <li><a class="dropdown-item" href="#">share</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button id="updateButton" class="dropdown-item">update</button></li>
+                    <li><button id="deleteButton" class="dropdown-item">delete</button></li>
+                </ul>
+            </div>
+            <div class="col-4 d-flex justify-content-end">
+                <button id="nextButton" class="btn btn-primary btn-block">next</button>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col-7">
                 <img id="imageDisplay" src="/image/1" class="img-fluid" alt="Image">
             </div>
-            <div class="col-4">
-                <div>
+            <div class="col-5 border rounded bg-body-tertiary">
+                <div class="mt-1">
                     <h5>Labels</h5>
                     <ul id="labels">
-                        <!-- Hier werden Labels eingefügt -->
                     </ul>
                 </div>
                 <div>
                     <h5>Metadaten</h5>
                     <ul id="metadata">
-                        <!-- Hier werden Metadaten eingefügt -->
                     </ul>
                 </div>
                 <pre id="jsonDisplay"></pre>
             </div>
         </div>
-    </form>
-
-
 </div>
 
 <style>
     #imageDisplay {
         max-height: 720px; /* Ändere die maximale Höhe nach Bedarf */
         width: auto;
+        border-radius: 5px;
     }
 </style>
 
