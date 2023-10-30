@@ -8,30 +8,93 @@
 {% include 'partials/navbar.html' %}
 
 <div class="container-sm mt-5">
-
     <form>
-        <div class="input-group mb-2">
-            <input  id="imageSearch" type="text" class="form-control" placeholder="e.g. tag" aria-label="imageSearch" aria-describedby="button-addon2">
-            <button class="btn btn-outline-secondary" type="button" id="imageSearch_button">search</button>
+        <div class="input-group">
+            <div id="badgeContainer" class="input-group-prepend"></div>
+            <input id="imageSearch" type="text" class="form-control rounded mb-1 mr-1" placeholder="Suche nach Labels (mit , trennen)" aria-label="imageSearch" aria-describedby="button-addon2">
+            <div class="input-group-append">
+                <button class="btn btn-primary mb-1" type="button" id="imageSearch_button">Suche</button>
+            </div>
         </div>
     </form>
 
-    <!-- Zusatz der noch nicht sicher ist
-    <div>
-        <ul class="list-group imageSearch_results">
-          <li class="list-group-item">
-              <ul class="list-group list-group-horizontal">
-                  <li class="list-group-item">id</li>
-                  <li class="list-group-item">A second item</li>
-                  <li class="list-group-item">A third item</li>
-              </ul>
-          </li>
-        </ul>
-    </div>
-    -->
+    <div id="searchResults"></div>
+
     {% include 'partials/imageview.html' %}
 </div>
 
+<script>
+        const badges = [];
+        const badgeContainer = document.getElementById('badgeContainer');
+        const imageSearchInput = document.getElementById('imageSearch');
+
+        // Event-Listener für die Enter-Taste im Eingabefeld
+        imageSearchInput.addEventListener('keyup', function (event) {
+            if (event.key === ',') {
+                addBadge();
+                event.preventDefault();
+            }
+        });
+
+        function addBadge() {
+            const badgeInput = imageSearchInput.value.replace(',', '');
+
+            if (badgeInput.trim() !== '') {
+                badges.push(badgeInput.trim());
+                const button = document.createElement('button');
+                button.type = 'button'
+                button.id = badgeInput.trim();
+                button.className = 'btn btn-secondary mr-1 mx-1';
+                button.textContent = badgeInput.trim();
+
+                const span = document.createElement('span')
+                span.className = 'badge badge-light'
+                span.textContent = 'X'
+                span.style.cursor = 'pointer'; // Fügt einen Zeiger hinzu, um zu zeigen, dass es anklickbar ist
+                span.addEventListener('click', function () {
+                    // Hier wird das Item aus der badges-Liste entfernt
+                    const badgeToRemove = button.id;
+                    const index = badges.indexOf(badgeToRemove);
+                    if (index !== -1) {
+                        badges.splice(index, 1);
+                    }
+                    badgeContainer.removeChild(button);
+                });
+                button.appendChild(span)
+                badgeContainer.appendChild(button);
+                imageSearchInput.value = '';
+            }
+        }
+
+        const imageSearch_button =  document.getElementById('imageSearch_button');
+
+        imageSearch_button.addEventListener('click', function () {
+            search()
+        });
+
+        // TODO: Enter Taste funktioniert noch nicht. Es Läd nur die Seite neu
+        imageSearch_button.addEventListener('keyup', function (event) {
+           if (event.key === 'Enter') {
+               search()
+           }
+        });
+
+        async function search() {
+            try {
+                const response = await fetch("/search?labels=" + JSON.stringify(badges).replace('{', '').replace('}', ''))
+                if (!response.ok) {
+                    console.error("Fehler beim Abrufen des nächsten Elements.");
+                    return;
+                }
+                const result = await response.json()
+                const jsonDisplay = document.getElementById("searchResults")
+                jsonDisplay.textContent = JSON.stringify(result, null, 2)
+
+            } catch (error) {
+                console.log("Fehler bei der Anfrage: " + error.message)
+            }
+        }
+</script>
 
 
 {% include 'partials/footer.html' %}

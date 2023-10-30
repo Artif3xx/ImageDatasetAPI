@@ -38,12 +38,11 @@
             </div>
             <div class="col-5 border rounded bg-body-tertiary">
                 <div class="mt-1">
-                    <h5>Labels</h5>
-                    <ul id="labels">
-                    </ul>
+                    <h5>Labels:</h5>
+                    <p id="labels"></p>
                 </div>
                 <div>
-                    <h5>Metadaten</h5>
+                    <h5>Metadaten:</h5>
                     <ul id="metadata">
                     </ul>
                 </div>
@@ -59,11 +58,11 @@
       <div class="modal-header">
         <h5 class="modal-title" id="updateModalLabel">Update Item</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
+        </div>
+        <div class="modal-body">
+          Labels: ...
+        </div>
+        <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-primary">Commit changes</button>
       </div>
@@ -192,9 +191,10 @@
                 labelsElement.removeChild(labelsElement.firstChild);
             }
             labelsList.forEach(label => {
-                const li = document.createElement("li");
-                li.textContent = String(label);
-                labelsElement.appendChild(li);
+                const badge = document.createElement("span")
+                badge.className = "badge badge-primary bg-primary mx-1";
+                badge.textContent = String(label);
+                labelsElement.appendChild(badge)
             });
         }
     }
