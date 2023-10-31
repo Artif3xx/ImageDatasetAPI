@@ -173,13 +173,14 @@ def delete_item(db: Session, item: schemas.Item):
     :param item: the item to delete
     :return: the deleted item from the database
     """
+
     try:
+        image_filepath: str = item.path
         db_item = db.get(models.Item, item.id)
         db.delete(db_item)
         db.commit()
-        db.refresh(db_item)
-        FolderTools.deleteFile(item.path)
-        Logger.info("file deleted: %s", item.path)
+        FolderTools.deleteFile(filepath=image_filepath)
+        Logger.info("file deleted: %s", image_filepath)
         return db_item
     except IntegrityError as e:
         db.rollback()
@@ -195,14 +196,12 @@ def delete_item(db: Session, item: schemas.Item):
         return {"error": "SQLAlchemyError: " + str(e)}
 
 
-def get_next_item(db: Session, item: schemas.Item):
-    current_id = item.id
+def get_next_item(db: Session, current_id: int):
     next_item = db.query(models.Item).filter(models.Item.id > current_id).first()
     return next_item if next_item else None
 
 
-def get_previous_item(db: Session, item: schemas.Item):
-    current_id = item.id
+def get_previous_item(db: Session, current_id: int):
     previous_item = db.query(models.Item).filter(models.Item.id < current_id).order_by(models.Item.id.desc()).first()
     return previous_item if previous_item else None
 
