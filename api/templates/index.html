@@ -11,14 +11,23 @@
     <form>
         <div class="input-group">
             <div id="badgeContainer" class="input-group-prepend"></div>
-            <input id="imageSearch" type="text" class="form-control rounded mb-1 mr-1" placeholder="Suche nach Labels (mit , trennen)" aria-label="imageSearch" aria-describedby="button-addon2">
+            <input id="imageSearch" type="text" class="form-control rounded mb-1 mr-1" placeholder="Suche nach Labels (mit , trennen)" aria-label="imageSearch" aria-describedby="button-addon2" >
+
             <div class="input-group-append">
                 <button class="btn btn-primary mb-1" type="button" id="imageSearch_button">Suche</button>
             </div>
+            <br>
+
+
         </div>
     </form>
 
     <div id="searchResults"></div>
+    <br>
+
+    <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="example">
+
+    <br>
 
     {% include 'partials/imageview.html' %}
 </div>
@@ -98,5 +107,8 @@
 
 
 {% include 'partials/footer.html' %}
+    <script>
+      const example = UseBootstrapTag(document.getElementById('example'))
+    </script>
 </body>
 </html>
