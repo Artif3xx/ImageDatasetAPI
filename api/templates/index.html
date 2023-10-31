@@ -8,107 +8,56 @@
 {% include 'partials/navbar.html' %}
 
 <div class="container-sm mt-5">
-    <form>
+    <form id="imageSearchForm" onsubmit="imageSearchRequest()">
         <div class="input-group">
-            <div id="badgeContainer" class="input-group-prepend"></div>
-            <input id="imageSearch" type="text" class="form-control rounded mb-1 mr-1" placeholder="Suche nach Labels (mit , trennen)" aria-label="imageSearch" aria-describedby="button-addon2" >
-
-            <div class="input-group-append">
-                <button class="btn btn-primary mb-1" type="button" id="imageSearch_button">Suche</button>
-            </div>
-            <br>
-
-
-        </div>
+        <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="imageSearchTagInput">
+        <button class="btn btn-outline-secondary" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+        </button>
+    </div>
     </form>
+    <script>
+        function imageSearchRequest(){
+            let tags = document.getElementById('imageSearchTagInput').value;
+            // on firefox prevents NS_BINDING_ERROR because submit button overwrite
+            event.preventDefault()
+            try {
+                const xhttp = new XMLHttpRequest();
+                xhttp.onload = function() {
+                    let images = JSON.parse(this.responseText);
+                    if (images == NULL){
+                        return;
+                    }
+                    images.forEach(function(value, index, array){
+                        console.log(value)
+                    })
+
+                    const jsonString = JSON.stringify(item['imageMetadata'], null, 2);
+                    const jsonDisplay = document.getElementById("jsonDisplay");
+                    jsonDisplay.textContent = jsonString
+                }
+                xhttp.open("GET", "/search?labels=" + JSON.stringify(tags.split(",")));
+                xhttp.send();
+            } catch (error) {
+                console.log("Fehler bei der Anfrage: " + error.message)
+            }
+
+        }
+
+    </script>
 
     <div id="searchResults"></div>
-    <br>
-
-    <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="example">
-
-    <br>
 
     {% include 'partials/imageview.html' %}
 </div>
 
-<script>
-        const badges = [];
-        const badgeContainer = document.getElementById('badgeContainer');
-        const imageSearchInput = document.getElementById('imageSearch');
-
-        // Event-Listener für die Enter-Taste im Eingabefeld
-        imageSearchInput.addEventListener('keyup', function (event) {
-            if (event.key === ',') {
-                addBadge();
-                event.preventDefault();
-            }
-        });
-
-        function addBadge() {
-            const badgeInput = imageSearchInput.value.replace(',', '');
-
-            if (badgeInput.trim() !== '') {
-                badges.push(badgeInput.trim());
-                const button = document.createElement('button');
-                button.type = 'button'
-                button.id = badgeInput.trim();
-                button.className = 'btn btn-secondary mr-1 mx-1';
-                button.textContent = badgeInput.trim();
-
-                const span = document.createElement('span')
-                span.className = 'badge badge-light'
-                span.textContent = 'X'
-                span.style.cursor = 'pointer'; // Fügt einen Zeiger hinzu, um zu zeigen, dass es anklickbar ist
-                span.addEventListener('click', function () {
-                    // Hier wird das Item aus der badges-Liste entfernt
-                    const badgeToRemove = button.id;
-                    const index = badges.indexOf(badgeToRemove);
-                    if (index !== -1) {
-                        badges.splice(index, 1);
-                    }
-                    badgeContainer.removeChild(button);
-                });
-                button.appendChild(span)
-                badgeContainer.appendChild(button);
-                imageSearchInput.value = '';
-            }
-        }
-
-        const imageSearch_button =  document.getElementById('imageSearch_button');
-
-        imageSearch_button.addEventListener('click', function () {
-            search()
-        });
-
-        // TODO: Enter Taste funktioniert noch nicht. Es Läd nur die Seite neu
-        imageSearch_button.addEventListener('keyup', function (event) {
-           if (event.key === 'Enter') {
-               search()
-           }
-        });
-
-        async function search() {
-            try {
-                const response = await fetch("/search?labels=" + JSON.stringify(badges).replace('{', '').replace('}', ''))
-                if (!response.ok) {
-                    console.error("Fehler beim Abrufen des nächsten Elements.");
-                    return;
-                }
-                const result = await response.json()
-                const jsonDisplay = document.getElementById("searchResults")
-                jsonDisplay.textContent = JSON.stringify(result, null, 2)
-
-            } catch (error) {
-                console.log("Fehler bei der Anfrage: " + error.message)
-            }
-        }
-</script>
 
 
 {% include 'partials/footer.html' %}
     <script>
-      const example = UseBootstrapTag(document.getElementById('example'))
+      const example = UseBootstrapTag(document.getElementById('imageSearchTagInput'))
     </script>
 </body>
 </html>
