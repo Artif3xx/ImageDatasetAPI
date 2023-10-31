@@ -205,3 +205,18 @@ def get_previous_item(db: Session, item: schemas.Item):
     current_id = item.id
     previous_item = db.query(models.Item).filter(models.Item.id < current_id).order_by(models.Item.id.desc()).first()
     return previous_item if previous_item else None
+
+
+def get_labels(db: Session):
+    item_labels = db.query(models.Item.labels).all()
+    # item_labels = [['labels 1', 'label2'], ['labels 1', 'label2']]
+    all_labels = []
+    print('item labels: ', len(item_labels))
+    print(item_labels[1:10])
+    for labels in item_labels:
+        # print(len(labels))
+        for label in labels[0]:
+            # print(len(label))
+            if label not in all_labels:
+                all_labels.append(label)
+    return all_labels

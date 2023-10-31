@@ -38,7 +38,6 @@ async def get_image_by_id(image_id: int, db=Depends(get_db)):
 
     # check if the image exists
     if os.path.exists(filepath):
-        # TODO: if a filepath is given but not existing, the server should handle this and update the database entry
         return FileResponse(filepath, headers={"Content-Type": "image/jpeg"})
     raise HTTPException(status_code=400, detail={"error": "file not found in the filesystem"})
 

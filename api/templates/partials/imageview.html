@@ -79,11 +79,19 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        ...
+        <p>Are you sure the item should be deleted?</p>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="deleteItemRadioKeep">
+            <label class="form-check-label" for="deleteItemRadioKeep">no, keep the item!</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="deleteItemRadioDelete" checked>
+            <label class="form-check-label" for="deleteItemRadioDelete">yes, delete the item!</label>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger">delete Item</button>
+        <button id="deleteItemButton" type="button" class="btn btn-danger">delete Item</button>
       </div>
     </div>
   </div>
@@ -104,7 +112,18 @@
     const previousButton = document.getElementById("previousButton");
     const imageDisplay = document.getElementById("imageDisplay");
     const idInput = document.getElementById("idInput");
+    const deleteItemButton = document.getElementById("deleteItemButton");
 
+    deleteItemButton.addEventListener("click", function (event) {
+       const confirm = document.getElementById("deleteItemRadioDelete");
+       if (confirm.active === true) {
+
+       }
+    });
+
+    async function deleteItem() {
+
+    }
 
     idInput.addEventListener("change", function() {
         aktuelleID = parseInt(idInput.value);
