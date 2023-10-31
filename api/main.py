@@ -38,5 +38,10 @@ async def get_index(request: Request):
 
 
 @app.get("/docswrap", response_class=HTMLResponse)
-async def get_docswrap(request: Request):
+async def get_docsWrap(request: Request):
     return templates.TemplateResponse("docswrap.html", {"request": request})
+
+
+@app.get("/imageview", response_class=HTMLResponse)
+async def get_imageView(request: Request):
+    return templates.TemplateResponse("imageview.html", {"request": request})
