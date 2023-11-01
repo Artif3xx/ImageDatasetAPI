@@ -45,3 +45,8 @@ async def get_docsWrap(request: Request):
 @app.get("/imageview", response_class=HTMLResponse)
 async def get_imageView(request: Request):
     return templates.TemplateResponse("imageview.html", {"request": request})
+
+
+@app.get("/upload", response_class=HTMLResponse)
+async def get_imageView(request: Request):
+    return templates.TemplateResponse("upload.html", {"request": request})

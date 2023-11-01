@@ -1,2 +1,15 @@
 @charset "UTF-8";
 
+.center-div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.center-body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+}
+
