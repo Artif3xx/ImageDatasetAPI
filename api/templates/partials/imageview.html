@@ -16,6 +16,8 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#">download</a></li>
                     <li><a class="dropdown-item" href="#">share</a></li>
+                    <li><a id="goToLastItem" class="dropdown-item" href="#">get last</a></li>
+                    <li><a id="goToFirstItem" class="dropdown-item" href="#">get first</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><button id="updateButton" type="button" class="dropdown-item" data-bs-toggle="modal"
                                 data-bs-target="#updateModal">update</button></li>
@@ -30,7 +32,7 @@
         <div class="row">
             <div class="col-7">
                 <figure class="figure">
-                    <img id="imageDisplay" class="figure-img img-fluid" alt="Image">
+                    <img id="imageDisplay" class="figure-img img-fluid" alt="Image" src="">
                 </figure>
             </div>
             <div class="col-5 border rounded bg-body-tertiary">
@@ -100,8 +102,6 @@
 
 <style>
     #imageDisplay {
-        max-height: 720px; /* Ändere die maximale Höhe nach Bedarf */
-        width: auto;
         border-radius: 5px;
     }
 </style>
@@ -122,6 +122,18 @@
         await update_image();
     }
 
+    document.getElementById('goToLastItem').addEventListener('click', async function() {
+        await get_last_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+    document.getElementById('goToFirstItem').addEventListener('click', async function() {
+        await get_first_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
     const updateModal = document.getElementById('updateModal');
     // const example = UseBootstrapTag(document.getElementById('labelUpdateModalInput'));
 
@@ -137,6 +149,10 @@
     const deleteItemRadioDelete = document.getElementById("deleteItemRadioDelete");
     const keepItemRadioDelete = document.getElementById("deleteItemRadioKeep");
     const modal = document.getElementById('deleteModal');
+
+    // some variables for the image to display
+    const image_width = 720;
+    const image_orientation = "portrait";
 
     // init function for the delete modal
 
@@ -258,8 +274,46 @@
         }
     }
 
+    async function get_last_id() {
+        try {
+            const response = await fetch("/item/-1/previous");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des letzten Elements.");
+            } else {
+                const lastData = await response.json();
+                aktuelleID = parseInt(lastData.id);
+                update_labels(lastData);
+
+                const jsonString = JSON.stringify(lastData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    async function get_first_id() {
+        try {
+            const response = await fetch("/item/0/next");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des letzten Elements.");
+            } else {
+                const firstData = await response.json();
+                aktuelleID = parseInt(firstData.id);
+                update_labels(firstData);
+
+                const jsonString = JSON.stringify(firstData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
     async function update_image() {
-        imageDisplay.src = "/image/" + aktuelleID;
+        imageDisplay.src = "/image/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
         console.log("aktuelle ID: " + aktuelleID);
     }
 

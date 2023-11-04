@@ -206,6 +206,16 @@ def get_previous_item(db: Session, current_id: int):
     return previous_item if previous_item else None
 
 
+def get_last_item(db: Session):
+    last_item = db.query(models.Item).order_by(models.Item.id.desc()).first()
+    return last_item if last_item else None
+
+
+def get_first_item(db: Session):
+    last_item = db.query(models.Item).order_by(models.Item.id).first()
+    return last_item if last_item else None
+
+
 def get_labels(db: Session):
     item_labels = db.query(models.Item.labels).all()
     # item_labels = [['labels 1', 'label2'], ['labels 1', 'label2']]

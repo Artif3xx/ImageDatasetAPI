@@ -38,6 +38,10 @@ async def get_item_by_id(item_id: int, db: Session = Depends(get_db)):
     :param item_id: the id of the item to search
     :return: the item with the given id
     """
+    if item_id == -1:
+        return crud.get_last_item(db)
+    elif item_id == 0:
+        return crud.get_first_item(db)
     item = crud.get_item_by_id(db, item_id=item_id)
     if item is None:
         raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
@@ -87,8 +91,10 @@ async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
 @router.get("/item/{item_id}/next", response_model=schemas.Item)
 async def get_next_item(item_id: int, db: Session = Depends(get_db)):
     # item = crud.get_item_by_id(db, item_id=item_id)
+    if item_id == 0:
+        return crud.get_first_item(db)
     if item_id < 0:
-        raise HTTPException(status_code=404, detail=f"item_id '{item_id}' must be positive")
+        raise HTTPException(status_code=404, detail=f"item_id '{item_id}' must be zero or positive")
     next_item = crud.get_next_item(db, current_id=item_id)
     if next_item is None:
         raise HTTPException(status_code=404, detail=f"There is nothing after item with id {item_id}!")
@@ -98,6 +104,8 @@ async def get_next_item(item_id: int, db: Session = Depends(get_db)):
 @router.get("/item/{item_id}/previous", response_model=schemas.Item)
 async def get_previous_item(item_id: int, db: Session = Depends(get_db)):
     # item = crud.get_item_by_id(db, item_id=item_id)
+    if item_id == -1:
+        return crud.get_last_item(db)
     if item_id < 0:
         raise HTTPException(status_code=404, detail=f"Item with id {item_id} must be positive")
     previous_item = crud.get_previous_item(db, current_id=item_id)
