@@ -15,14 +15,13 @@
             <button class="btn btn-outline-secondary d-none" type="submit"></button>
             <p id="resultHint"></p>
 
-
-
         </form>
 
         <div class="row" id="searchResults"></div>
 
+        <!-- Pagination -->
         <div class="justify-content-center d-flex mt-2">
-            <nav aria-label="Page navigation example">
+            <nav id="pageNavigation" style="display: none;">
                 <ul class="pagination" id="itemPages">
                     <li class="page-item">
                         <a class="page-link" href="#" aria-label="Previous" id="previousItemPage">
@@ -40,6 +39,10 @@
         </div>
     </div>
 
+    <!-- Toasts after uploading an image -->
+    <div aria-live="polite" aria-atomic="true">
+        <div style="position: absolute; top: 0; right: 0;" id="nothingFoundToasts" class="gap-2"></div>
+    </div>
 
     {% include 'partials/footer.html' %}
     <script>
@@ -78,17 +81,21 @@
             const xhttp = new XMLHttpRequest();
             xhttp.onload = function() {
                 let response_items = JSON.parse(this.responseText);
-                if (response_items == null) {
-                    return;
+                if (response_items.length === 0) {
+                    console.log('Nothing found');
+                    nothing_found_toast();
+                } else {
+                    console.log('found something');
+                    console.log(response_items);
+                    document.getElementById('pageNavigation').style.display = 'block';
+                    items = response_items;
+                    pages = Math.ceil(items.length / itemsPerPage);
+
+                    const resultHint = document.getElementById('resultHint');
+                    resultHint.textContent = "Found " + items.length + " images on " + pages + " pages.";
+
+                    loadPage();
                 }
-                items = response_items;
-                pages = Math.ceil(items.length / itemsPerPage);
-                console.log("pages: " + pages);
-
-                const resultHint = document.getElementById('resultHint');
-                resultHint.textContent = "Found " + items.length + " images on " + pages + " pages.";
-
-                loadPage();
             }
             xhttp.open("GET", "/search?labels=" + JSON.stringify(tags.split(",")));
             xhttp.send();
@@ -97,11 +104,56 @@
         }
     }
 
-    function loadPage() {
+    function nothing_found_toast() {
+        const toastContainer = document.getElementById('nothingFoundToasts');
+        toastContainer.innerHTML = '';
 
+        const new_toast = document.createElement('div');
+        new_toast.id = '404Toast';
+        new_toast.classList.add('toast');
+        new_toast.classList.add('mb-1');
+        new_toast.setAttribute('role', 'alert');
+        new_toast.setAttribute('aria-live', 'assertive');
+        new_toast.setAttribute('aria-atomic', 'true');
+        new_toast.setAttribute('data-delay', '2000');
+
+        const new_toast_header = document.createElement('div');
+        new_toast_header.classList.add('toast-header');
+
+        const new_toast_header_strong = document.createElement('strong');
+        new_toast_header_strong.classList.add('mr-auto');
+        new_toast_header_strong.innerText = 'Nothing found!';
+
+        const new_toast_body = document.createElement('div');
+        new_toast_body.classList.add('toast-body');
+
+        const TextLabels = document.createElement('p');
+        const TextLabelsTitle = document.createElement('span');
+        TextLabelsTitle.textContent = 'Labels: ';
+        TextLabels.appendChild(TextLabelsTitle);
+        document.getElementById('imageSearchTagInput').value.split(",").forEach(function(value, index, array) {
+            const badge = document.createElement("span")
+            badge.className = "badge badge-primary bg-primary mx-1";
+            badge.textContent = String(value);
+            TextLabels.appendChild(badge)
+        });
+        new_toast_body.appendChild(TextLabels);
+
+        // new_toast_body.innerText = JSON.stringify(document.getElementById('imageSearchTagInput').value.split(","));
+
+        new_toast_header.appendChild(new_toast_header_strong);
+        new_toast.appendChild(new_toast_header);
+        new_toast.appendChild(new_toast_body);
+
+        toastContainer.appendChild(new_toast);
+        const toast = new bootstrap.Toast(document.getElementById('404Toast'));
+        toast.show();
+    }
+
+    function loadPage() {
         const slices = items.slice((currentPage - 1) * itemsPerPage, ((currentPage - 1) * itemsPerPage) + itemsPerPage);
         let itemPageLabel = document.getElementById('itemPage');
-        itemPageLabel.textContent = String(currentPage);
+        itemPageLabel.textContent = String(currentPage) + " / " + String(pages);
 
         let results = document.getElementById('searchResults');
         results.innerHTML = '';
