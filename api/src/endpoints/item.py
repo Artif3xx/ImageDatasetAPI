@@ -12,7 +12,7 @@ from api.src.database.database import get_db
 router = APIRouter()
 
 
-@router.get("/items", response_model=list[schemas.Item])
+@router.get("/items", response_model=list[schemas.Item], tags=["item routes"])
 def read_items(skip: int = 0, limit: int | None = 100, db: Session = Depends(get_db)):
     """
     Get items from the database. You can leave all parameters and get all items from the database. You can also use
@@ -27,7 +27,7 @@ def read_items(skip: int = 0, limit: int | None = 100, db: Session = Depends(get
     return items
 
 
-@router.get("/item/{item_id}", response_model=schemas.Item)
+@router.get("/item/{item_id}", response_model=schemas.Item, tags=["item routes"])
 async def get_item_by_id(item_id: int, db: Session = Depends(get_db)):
     """
     Get an item by the itemID. This simply returns the item as a file response. If you want to get the item info,
@@ -48,7 +48,7 @@ async def get_item_by_id(item_id: int, db: Session = Depends(get_db)):
     return item
 
 
-@router.post("/item/{item_id}/update", response_model=schemas.Item)
+@router.post("/item/{item_id}/update", response_model=schemas.Item, tags=["item routes"])
 async def update_item_by_id(item_id: int, item: schemas.ItemUpdate, db: Session = Depends(get_db)):
     """
     Update the item for an item by itemID. The function can also be used to remove all item from an item by
@@ -73,7 +73,7 @@ async def update_item_by_id(item_id: int, item: schemas.ItemUpdate, db: Session 
     return crud.update_item(db, item_id=item_id, item=item)
 
 
-@router.delete("/item/{item_id}/delete", response_model=schemas.Item)
+@router.delete("/item/{item_id}/delete", response_model=schemas.Item, tags=["item routes"])
 async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
     """
     Delete the item for an item by itemID.
@@ -88,7 +88,7 @@ async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
     return crud.delete_item(db, item=itemCheck)
 
 
-@router.get("/item/{item_id}/next", response_model=schemas.Item)
+@router.get("/item/{item_id}/next", response_model=schemas.Item, tags=["item routes"])
 async def get_next_item(item_id: int, db: Session = Depends(get_db)):
     # item = crud.get_item_by_id(db, item_id=item_id)
     if item_id == 0:
@@ -101,7 +101,7 @@ async def get_next_item(item_id: int, db: Session = Depends(get_db)):
     return next_item
 
 
-@router.get("/item/{item_id}/previous", response_model=schemas.Item)
+@router.get("/item/{item_id}/previous", response_model=schemas.Item, tags=["item routes"])
 async def get_previous_item(item_id: int, db: Session = Depends(get_db)):
     # item = crud.get_item_by_id(db, item_id=item_id)
     if item_id == -1:

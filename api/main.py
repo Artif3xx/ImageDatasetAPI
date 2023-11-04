@@ -27,7 +27,7 @@ app.include_router(item.router)
 app.include_router(search.router)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_index(request: Request):
     """
     get the main index page of the project
@@ -37,16 +37,16 @@ async def get_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/docswrap", response_class=HTMLResponse)
+@app.get("/docswrap", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_docsWrap(request: Request):
     return templates.TemplateResponse("docswrap.html", {"request": request})
 
 
-@app.get("/imageview", response_class=HTMLResponse)
+@app.get("/imageview", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_imageView(request: Request):
     return templates.TemplateResponse("imageview.html", {"request": request})
 
 
-@app.get("/upload", response_class=HTMLResponse)
+@app.get("/upload", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_imageView(request: Request):
     return templates.TemplateResponse("upload.html", {"request": request})

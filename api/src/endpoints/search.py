@@ -13,7 +13,7 @@ from api.src.database.database import get_db
 router = APIRouter()
 
 
-@router.get("/search")
+@router.get("/search", tags=["search routes"])
 async def get_image_ids_with_labels(labels: str, onlyOne: bool | None = None, onlyIDs: bool | None = None,
                                     db=Depends(get_db)):
     """

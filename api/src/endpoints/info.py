@@ -12,7 +12,7 @@ from api.src.database import crud
 router = APIRouter()
 
 
-@router.get("/info")
+@router.get("/info", tags=["info routes"])
 async def get_api_info():
     """
     Get information about the image server and the api
@@ -23,6 +23,6 @@ async def get_api_info():
     return info
 
 
-@router.get("/info/labels")
+@router.get("/info/labels", tags=["info routes"])
 async def get_labels(db: Session = Depends(get_db)):
     return crud.get_labels(db)
