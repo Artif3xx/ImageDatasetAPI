@@ -90,7 +90,14 @@ async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
 
 @router.get("/item/{item_id}/next", response_model=schemas.Item, tags=["item routes"])
 async def get_next_item(item_id: int, db: Session = Depends(get_db)):
-    # item = crud.get_item_by_id(db, item_id=item_id)
+    """
+    Get the next item after the item with the given id. If the item_id is 0, the first item will be returned. The id
+    must be zero or positive.
+
+    :param item_id: the id of the item to search
+    :param db: the database session to use
+    :return: the next item
+    """
     if item_id == 0:
         return crud.get_first_item(db)
     if item_id < 0:
@@ -103,7 +110,14 @@ async def get_next_item(item_id: int, db: Session = Depends(get_db)):
 
 @router.get("/item/{item_id}/previous", response_model=schemas.Item, tags=["item routes"])
 async def get_previous_item(item_id: int, db: Session = Depends(get_db)):
-    # item = crud.get_item_by_id(db, item_id=item_id)
+    """
+    Get the previous item before the item with the given id. If the item_id is -1, the last item will be returned. The
+    id must be -1, 0 or another positive number.
+
+    :param item_id: the id of the item to search
+    :param db: the database session to use
+    :return: the previous item
+    """
     if item_id == -1:
         return crud.get_last_item(db)
     if item_id < 0:

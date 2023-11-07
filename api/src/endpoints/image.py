@@ -5,6 +5,7 @@ as FileResponse. Look inside the /example folder for more information about the 
 
 from __future__ import annotations
 import os
+import random
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse, Response
@@ -16,21 +17,21 @@ import numpy as np
 import cv2 as cv
 from io import BytesIO
 from PIL import Image
-import io
 
 router = APIRouter()
 
+# valid modes for the orientation parameter
 valid_orientations = ["landscape", "portrait", "square"]
 
 
-@router.get("/image/{image_id}", tags=["image routes"])
+@router.get("/image/id/{image_id}/", tags=["image routes"])
 async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None = None, orientation: str | None = None):
     """
     Get an image by the imageID. This simply returns the image as a file response. If you want to get the image info,
     you need to request the info endpoint. You need at least one parameter to get an image. If you pass both parameters,
     an error will be returned.
 
-    :param db:
+    :param db: the database session to use
     :param image_id: the id of the image to request
     :param width: the width of the image. If you pass this parameter, the image will be resized to the given width
     :param orientation: how the image should be oriented. Possible values are: "landscape", "portrait" and "square"
@@ -83,8 +84,14 @@ async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None =
     raise HTTPException(status_code=400, detail={"error": "file not found in the filesystem"})
 
 
-def image_as_bytes(image_rgb: np.ndarray) -> bytes:
-    image_pil = Image.fromarray(image_rgb)
+def image_as_bytes(src_image: np.ndarray) -> bytes:
+    """
+    Convert a numpy array to bytes. This is used to return the image as a file response
+
+    :param src_image: the image as numpy array
+    :return: the image as bytes
+    """
+    image_pil = Image.fromarray(src_image)
 
     with BytesIO() as buffer:
         image_pil.save(buffer, format="JPEG")
@@ -93,15 +100,18 @@ def image_as_bytes(image_rgb: np.ndarray) -> bytes:
         return image_bytes
 
 
-@router.get("/image/random", tags=["image routes"])
-async def get_random_image(labels: str | None = None):
+@router.get("/image/random/", tags=["image routes"])
+async def get_random_image(labels: str | None = None, db=Depends(get_db)):
     """
     Get a random image from the database. You can also pass a list of labels to get a random image with these labels.
-    There must be at least one label inside a array. Example: ["label1", "label2"]. If you don´t want to search for
+    There must be at least one label inside an array. Example: ["label1", "label2"]. If you don´t want to search for
     images with the following label, you can simply ignore the parameter.
 
     :param labels: the labels to search for as list. Example: ["label1", "label2"]
+    :param db: the database session to use
     :return: the requested image as file response
     """
 
-    return {"msg": "random image"}
+    random_id = random.sample(crud.get_ids(db), 1)
+    imageData = crud.get_item_by_id(db, item_id=random_id)
+    return FileResponse(imageData.path, headers={"Content-Type": "image/jpeg"})

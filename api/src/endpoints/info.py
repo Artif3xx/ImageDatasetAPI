@@ -25,4 +25,10 @@ async def get_api_info():
 
 @router.get("/info/labels", tags=["info routes"])
 async def get_labels(db: Session = Depends(get_db)):
+    """
+    Get all labels from the database
+
+    :param db: the database session to use
+    :return: a list of all labels
+    """
     return crud.get_labels(db)
