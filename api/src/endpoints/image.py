@@ -24,7 +24,7 @@ router = APIRouter()
 valid_orientations = ["landscape", "portrait", "square"]
 
 
-@router.get("/image/id/{image_id}/", tags=["image routes"])
+@router.get("/image/id/{image_id}", tags=["image routes"])
 async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None = None, orientation: str | None = None):
     """
     Get an image by the imageID. This simply returns the image as a file response. If you want to get the image info,
@@ -100,7 +100,7 @@ def image_as_bytes(src_image: np.ndarray) -> bytes:
         return image_bytes
 
 
-@router.get("/image/random/", tags=["image routes"])
+@router.get("/image/random", tags=["image routes"])
 async def get_random_image(labels: str | None = None, db=Depends(get_db)):
     """
     Get a random image from the database. You can also pass a list of labels to get a random image with these labels.

@@ -18,6 +18,7 @@
                     <li><a class="dropdown-item" href="#">share</a></li>
                     <li><a id="goToLastItem" class="dropdown-item" href="#">get last</a></li>
                     <li><a id="goToFirstItem" class="dropdown-item" href="#">get first</a></li>
+                    <li><a id="goToRandomItem" class="dropdown-item" href="#">get random</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><button id="updateButton" type="button" class="dropdown-item" data-bs-toggle="modal"
                                 data-bs-target="#updateModal">update</button></li>
@@ -109,8 +110,6 @@
 <script>
     let aktuelleID = 0; // Die aktuelle ID des angezeigten Bildes
 
-    const nextButton = document.getElementById("nextButton");
-    const previousButton = document.getElementById("previousButton");
     const imageDisplay = document.getElementById("imageDisplay");
     const idInput = document.getElementById("idInput");
 
@@ -140,7 +139,6 @@
     updateModal.onload = async function() {
         // await get_item();
     }
-
 
     // ---------------------------------------------------------------------------------------------------- //
     // manage the radio buttons inside the delete modal
@@ -190,7 +188,7 @@
     async function deleteItem() {
         console.log('delete item with id: ' + aktuelleID);
         try {
-            const response = await fetch("/item/" + aktuelleID + "/delete", {
+            const response = await fetch("/item/id/" + aktuelleID + "/delete", {
                 method: 'DELETE'
             })
             .then(response => response.json())
@@ -205,6 +203,10 @@
 
     // ---------------------------------------------------------------------------------------------------- //
     // normal functions for the image view
+
+    const nextButton = document.getElementById("nextButton");
+    const previousButton = document.getElementById("previousButton");
+    const randomButton = document.getElementById("goToRandomItem");
 
     idInput.addEventListener("change", async function() {
         aktuelleID = parseInt(idInput.value);
@@ -224,13 +226,21 @@
         await update_image();
     });
 
+    randomButton.addEventListener("click", async function() {
+        await get_random_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+
+
     async function get_next_id() {
         if (aktuelleID < 0) {
             aktuelleID = 0;
         }
         const letzteID = aktuelleID;
         try {
-            const response = await fetch("/item/" + aktuelleID + "/next");
+            const response = await fetch("/item/id/" + aktuelleID + "/next");
             if (!response.ok) {
                 console.error("Fehler beim Abrufen des nächsten Elements.");
             } else {
@@ -256,7 +266,7 @@
         }
         const letzteID = aktuelleID;
         try {
-            const response = await fetch("/item/" + aktuelleID + "/previous");
+            const response = await fetch("/item/id/" + aktuelleID + "/previous");
             if (!response.ok) {
                 console.error("There is no previous item.");
             } else {
@@ -276,7 +286,7 @@
 
     async function get_last_id() {
         try {
-            const response = await fetch("/item/-1/previous");
+            const response = await fetch("/item/id/-1/previous");
             if (!response.ok) {
                 console.error("Fehler beim Abrufen des letzten Elements.");
             } else {
@@ -295,7 +305,7 @@
 
     async function get_first_id() {
         try {
-            const response = await fetch("/item/0/next");
+            const response = await fetch("/item/id/0/next");
             if (!response.ok) {
                 console.error("Fehler beim Abrufen des letzten Elements.");
             } else {
@@ -312,8 +322,27 @@
         }
     }
 
+    async function get_random_id() {
+        try {
+            const response = await fetch("/item/random");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des letzten Elements.");
+            } else {
+                const randomData = await response.json();
+                aktuelleID = parseInt(randomData.id);
+                update_labels(randomData);
+
+                const jsonString = JSON.stringify(randomData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
     async function update_image() {
-        imageDisplay.src = "/image/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
+        imageDisplay.src = "/image/id/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
         console.log("aktuelle ID: " + aktuelleID);
     }
 
@@ -337,7 +366,7 @@
 
     async function get_item() {
         try {
-            const response = await fetch("/item/" + aktuelleID);
+            const response = await fetch("/item/id/" + aktuelleID);
             if (!response.ok) {
                 console.error("Fehler beim Abrufen des Elements.");
                 return;

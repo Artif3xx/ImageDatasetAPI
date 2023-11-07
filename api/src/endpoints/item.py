@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.src.database import crud, schemas
 from api.src.database.database import get_db
+import random
 
 router = APIRouter()
 
@@ -27,7 +28,7 @@ def read_items(skip: int = 0, limit: int | None = 100, db: Session = Depends(get
     return items
 
 
-@router.get("/item/{item_id}", response_model=schemas.Item, tags=["item routes"])
+@router.get("/item/id/{item_id}", response_model=schemas.Item, tags=["item routes"])
 async def get_item_by_id(item_id: int, db: Session = Depends(get_db)):
     """
     Get an item by the itemID. This simply returns the item as a file response. If you want to get the item info,
@@ -48,7 +49,7 @@ async def get_item_by_id(item_id: int, db: Session = Depends(get_db)):
     return item
 
 
-@router.post("/item/{item_id}/update", response_model=schemas.Item, tags=["item routes"])
+@router.post("/item/id/{item_id}/update", response_model=schemas.Item, tags=["item routes"])
 async def update_item_by_id(item_id: int, item: schemas.ItemUpdate, db: Session = Depends(get_db)):
     """
     Update the item for an item by itemID. The function can also be used to remove all item from an item by
@@ -73,7 +74,7 @@ async def update_item_by_id(item_id: int, item: schemas.ItemUpdate, db: Session 
     return crud.update_item(db, item_id=item_id, item=item)
 
 
-@router.delete("/item/{item_id}/delete", response_model=schemas.Item, tags=["item routes"])
+@router.delete("/item/id/{item_id}/delete", response_model=schemas.Item, tags=["item routes"])
 async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
     """
     Delete the item for an item by itemID.
@@ -88,7 +89,7 @@ async def delete_item_by_id(item_id: int, db: Session = Depends(get_db)):
     return crud.delete_item(db, item=itemCheck)
 
 
-@router.get("/item/{item_id}/next", response_model=schemas.Item, tags=["item routes"])
+@router.get("/item/id/{item_id}/next", response_model=schemas.Item, tags=["item routes"])
 async def get_next_item(item_id: int, db: Session = Depends(get_db)):
     """
     Get the next item after the item with the given id. If the item_id is 0, the first item will be returned. The id
@@ -108,7 +109,7 @@ async def get_next_item(item_id: int, db: Session = Depends(get_db)):
     return next_item
 
 
-@router.get("/item/{item_id}/previous", response_model=schemas.Item, tags=["item routes"])
+@router.get("/item/id/{item_id}/previous", response_model=schemas.Item, tags=["item routes"])
 async def get_previous_item(item_id: int, db: Session = Depends(get_db)):
     """
     Get the previous item before the item with the given id. If the item_id is -1, the last item will be returned. The
@@ -126,3 +127,16 @@ async def get_previous_item(item_id: int, db: Session = Depends(get_db)):
     if previous_item is None:
         raise HTTPException(status_code=404, detail=f"There is nothing before item with id {item_id}!")
     return previous_item
+
+
+@router.get("/item/random", response_model=schemas.Item, tags=["item routes"])
+async def get_random_item(db: Session = Depends(get_db)):
+    """
+    Get a random item from the database.
+
+    :param db: the database session to use
+    :return: a random item
+    """
+    random_id = random.sample(crud.get_ids(db), 1)
+    return crud.get_item_by_id(db, item_id=random_id)
+

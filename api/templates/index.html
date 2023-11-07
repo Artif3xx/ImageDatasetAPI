@@ -170,7 +170,7 @@
 
                     const cardImage = document.createElement('img');
                     cardImage.classList.add('card-img-top');
-                    cardImage.src = '/image/' + value.id + '?orientation=portrait&width=480';
+                    cardImage.src = '/image/id/' + value.id + '?orientation=portrait&width=480';
                     card.appendChild(cardImage);
 
                     const cardBody = document.createElement('div');
@@ -196,7 +196,7 @@
                     download.classList.add('card-link');
                     download.textContent = 'inspect';
                     download.addEventListener('click', function(){
-                        window.open('/image/' + value.id, '_blank');
+                        window.open('/image/id/' + value.id, '_blank');
                     });
                     cardBody.appendChild(download);
 
