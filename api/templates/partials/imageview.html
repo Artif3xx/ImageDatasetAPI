@@ -1,0 +1,385 @@
+<div class="container-sm mt-2" onload="init()">
+        <nav class="row border rounded navbar mb-2">
+            <div class="col-4 d-flex justify-content-start">
+                <button id="previousButton" class="btn btn-primary btn-block">previous</button>
+            </div>
+            <div class="col-1 d-flex">
+                <label for="idInput" class="col-form-label">Image ID</label>
+            </div>
+            <div class="col-1 d-flex">
+                <input type="number" id="idInput" class="form-control" value="" placeholder="ID">
+            </div>
+            <div class="col-2 btn-group">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    Item Actions
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">download</a></li>
+                    <li><a class="dropdown-item" href="#">share</a></li>
+                    <li><a id="goToLastItem" class="dropdown-item" href="#">get last</a></li>
+                    <li><a id="goToFirstItem" class="dropdown-item" href="#">get first</a></li>
+                    <li><a id="goToRandomItem" class="dropdown-item" href="#">get random</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button id="updateButton" type="button" class="dropdown-item" data-bs-toggle="modal"
+                                data-bs-target="#updateModal">update</button></li>
+                    <li><button id="deleteButton" type="button" class="dropdown-item text-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">delete</button></li>
+                </ul>
+            </div>
+            <div class="col-4 d-flex justify-content-end">
+                <button id="nextButton" class="btn btn-primary btn-block">next</button>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col-7">
+                <figure class="figure">
+                    <img id="imageDisplay" class="figure-img img-fluid" alt="Image" src="">
+                </figure>
+            </div>
+            <div class="col-5 border rounded bg-body-tertiary">
+                <div class="mt-1">
+                    <h5>Labels:</h5>
+                    <p id="labels"></p>
+                </div>
+                <div>
+                    <h5>Metadaten:</h5>
+                    <ul id="metadata">
+                    </ul>
+                </div>
+                <pre id="jsonDisplay" class="overflow-auto"></pre>
+            </div>
+        </div>
+</div>
+
+<!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">Update Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body">
+                <form class="mb-3">
+                    <label for="labelUpdateModalInput" class="form-label">Add your Labels here</label>
+                    <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="labelUpdateModalInput">
+                    <button class="btn btn-outline-secondary d-none" type="submit"></button>
+                </form>
+            </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Commit changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Delete Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure the item should be deleted?</p>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="deleteItemRadioKeep" checked>
+            <label class="form-check-label" for="deleteItemRadioKeep">no, keep the item!</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="deleteItemRadioDelete">
+            <label class="form-check-label" for="deleteItemRadioDelete">yes, delete the item!</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="deleteItemButton" type="button" class="btn btn-danger" data-bs-dismiss="modal" disabled>delete Item</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+    #imageDisplay {
+        border-radius: 5px;
+    }
+</style>
+
+<script>
+    let aktuelleID = 0; // Die aktuelle ID des angezeigten Bildes
+
+    const imageDisplay = document.getElementById("imageDisplay");
+    const idInput = document.getElementById("idInput");
+
+    // init function for the image view
+
+    window.onload = async function() {
+        await get_next_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    }
+
+    document.getElementById('goToLastItem').addEventListener('click', async function() {
+        await get_last_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+    document.getElementById('goToFirstItem').addEventListener('click', async function() {
+        await get_first_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+    const updateModal = document.getElementById('updateModal');
+    // const example = UseBootstrapTag(document.getElementById('labelUpdateModalInput'));
+
+    updateModal.onload = async function() {
+        // await get_item();
+    }
+
+    // ---------------------------------------------------------------------------------------------------- //
+    // manage the radio buttons inside the delete modal
+
+    const deleteItemButton = document.getElementById("deleteItemButton");
+    const deleteItemRadioDelete = document.getElementById("deleteItemRadioDelete");
+    const keepItemRadioDelete = document.getElementById("deleteItemRadioKeep");
+    const modal = document.getElementById('deleteModal');
+
+    // some variables for the image to display
+    const image_width = 720;
+    const image_orientation = "portrait";
+
+    // init function for the delete modal
+
+    modal.addEventListener('show.bs.modal', function () {
+        deleteItemRadioDelete.checked = false;
+        keepItemRadioDelete.checked = true;
+        deleteItemButton.setAttribute("disabled", "disabled"); // deactivate button
+    });
+
+    deleteItemRadioDelete.addEventListener("change", function() {
+        if (deleteItemRadioDelete.checked) {
+            deleteItemButton.removeAttribute("disabled"); // activate button
+        } else {
+            deleteItemButton.setAttribute("disabled", "disabled"); // deactivate button
+        }
+    });
+
+    keepItemRadioDelete.addEventListener("change", function() {
+        if (keepItemRadioDelete.checked) {
+            deleteItemButton.setAttribute("disabled", "disabled"); // deactivate button
+        } else {
+            deleteItemButton.removeAttribute("disabled"); // activate button
+        }
+    });
+
+    // handle buttons inside the delete modal
+
+    deleteItemButton.addEventListener("click", async function () {
+        const confirm = document.getElementById("deleteItemRadioDelete");
+        if (confirm.checked) {
+            await deleteItem();
+        }
+    });
+
+    async function deleteItem() {
+        console.log('delete item with id: ' + aktuelleID);
+        try {
+            const response = await fetch("/item/id/" + aktuelleID + "/delete", {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Delete erfolgreich:', data);
+                // Hier kannst du die Erfolgsantwort verarbeiten
+            })
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------------- //
+    // normal functions for the image view
+
+    const nextButton = document.getElementById("nextButton");
+    const previousButton = document.getElementById("previousButton");
+    const randomButton = document.getElementById("goToRandomItem");
+
+    idInput.addEventListener("change", async function() {
+        aktuelleID = parseInt(idInput.value);
+        await update_image();
+        await get_item();
+    });
+
+    nextButton.addEventListener("click", async function() {
+        await get_next_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+    previousButton.addEventListener("click", async function() {
+        await get_previous_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+    randomButton.addEventListener("click", async function() {
+        await get_random_id();
+        idInput.value = aktuelleID;
+        await update_image();
+    });
+
+
+
+    async function get_next_id() {
+        if (aktuelleID < 0) {
+            aktuelleID = 0;
+        }
+        const letzteID = aktuelleID;
+        try {
+            const response = await fetch("/item/id/" + aktuelleID + "/next");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des nächsten Elements.");
+            } else {
+                const nextData = await response.json();
+                aktuelleID = parseInt(nextData.id);
+                update_labels(nextData);
+
+                const jsonString = JSON.stringify(nextData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+                return nextData;
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+            aktuelleID = letzteID;
+        }
+    }
+
+    async function get_previous_id() {
+        if (aktuelleID < 1) {
+            aktuelleID = 1;
+            return;
+        }
+        const letzteID = aktuelleID;
+        try {
+            const response = await fetch("/item/id/" + aktuelleID + "/previous");
+            if (!response.ok) {
+                console.error("There is no previous item.");
+            } else {
+                const previousData = await response.json();
+                aktuelleID = parseInt(previousData.id);
+                update_labels(previousData);
+
+                const jsonString = JSON.stringify(previousData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+            aktuelleID = letzteID;
+        }
+    }
+
+    async function get_last_id() {
+        try {
+            const response = await fetch("/item/id/-1/previous");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des letzten Elements.");
+            } else {
+                const lastData = await response.json();
+                aktuelleID = parseInt(lastData.id);
+                update_labels(lastData);
+
+                const jsonString = JSON.stringify(lastData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    async function get_first_id() {
+        try {
+            const response = await fetch("/item/id/0/next");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des letzten Elements.");
+            } else {
+                const firstData = await response.json();
+                aktuelleID = parseInt(firstData.id);
+                update_labels(firstData);
+
+                const jsonString = JSON.stringify(firstData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    async function get_random_id() {
+        try {
+            const response = await fetch("/item/random");
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des letzten Elements.");
+            } else {
+                const randomData = await response.json();
+                aktuelleID = parseInt(randomData.id);
+                update_labels(randomData);
+
+                const jsonString = JSON.stringify(randomData['imageMetadata'], null, 2);
+                const jsonDisplay = document.getElementById("jsonDisplay");
+                jsonDisplay.textContent = jsonString
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    async function update_image() {
+        imageDisplay.src = "/image/id/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
+        console.log("aktuelle ID: " + aktuelleID);
+    }
+
+    function update_labels(item) {
+        const labelsList = item.labels;
+        const labelsElement = document.getElementById("labels");
+
+        if (labelsElement) {
+
+            while (labelsElement.firstChild) {
+                labelsElement.removeChild(labelsElement.firstChild);
+            }
+            labelsList.forEach(label => {
+                const badge = document.createElement("span")
+                badge.className = "badge badge-primary bg-primary mx-1";
+                badge.textContent = String(label);
+                labelsElement.appendChild(badge)
+            });
+        }
+    }
+
+    async function get_item() {
+        try {
+            const response = await fetch("/item/id/" + aktuelleID);
+            if (!response.ok) {
+                console.error("Fehler beim Abrufen des Elements.");
+                return;
+            }
+            const item = await response.json();
+            update_labels(item);
+
+            const jsonString = JSON.stringify(item['imageMetadata'], null, 2);
+            const jsonDisplay = document.getElementById("jsonDisplay");
+            jsonDisplay.textContent = jsonString
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+</script>

@@ -5,33 +5,207 @@
     <title>Search</title>
 </head>
 <body>
-{% include 'partials/navbar.html' %}
+    {% include 'partials/navbar.html' %}
 
-<div class="container-sm mt-5">
+    <div class="container-sm mt-5 mb-3">
+        <form id="imageSearchForm" onsubmit="imageSearchRequest()">
 
-    <form>
-        <div class="input-group mb-3">
-            <input  id="imageSearch" type="text" class="form-control" placeholder="e.g. tag" aria-label="imageSearch" aria-describedby="button-addon2">
-            <button class="btn btn-outline-secondary" type="button" id="imageSearch_button">search</button>
+            <label for="imageSearchTagInput" class="form-label">Search for images</label>
+            <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="imageSearchTagInput">
+            <button class="btn btn-outline-secondary d-none" type="submit"></button>
+            <p id="resultHint"></p>
+
+        </form>
+
+        <div class="row" id="searchResults"></div>
+
+        <!-- Pagination -->
+        <div class="justify-content-center d-flex mt-2">
+            <nav id="pageNavigation" style="display: none;">
+                <ul class="pagination" id="itemPages">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous" id="previousItemPage">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a id="itemPage" class="page-link" href="#">1</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next" id="nextItemPage">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
-    </form>
-
-    <div>
-        <ul class="list-group imageSearch_results">
-          <li class="list-group-item">
-              <ul class="list-group list-group-horizontal">
-                  <li class="list-group-item">id</li>
-                  <li class="list-group-item">A second item</li>
-                  <li class="list-group-item">A third item</li>
-              </ul>
-          </li>
-        </ul>
-
     </div>
 
-</div>
+    <!-- Toasts after uploading an image -->
+    <div aria-live="polite" aria-atomic="true">
+        <div style="position: absolute; top: 0; right: 0;" id="nothingFoundToasts" class="gap-2"></div>
+    </div>
 
+    {% include 'partials/footer.html' %}
+    <script>
+    const example = UseBootstrapTag(document.getElementById('imageSearchTagInput'))
 
+    let items = []
+    let pages = 1
+    let currentPage = 1
+    const itemsPerPage = 12;
 
-{% include 'partials/footer.html' %}</body>
+    // ---------------------------------------------------------------------------------------------------- //
+    // navigation between pages
+
+    document.getElementById('previousItemPage').addEventListener('click', function() {
+        if (currentPage > 1 && currentPage <= pages) {
+            currentPage--;
+            loadPage();
+        }
+    });
+
+    document.getElementById('nextItemPage').addEventListener('click', function() {
+        if (currentPage >= 1 && currentPage < pages) {
+            currentPage++;
+            loadPage();
+        }
+    });
+
+    // ---------------------------------------------------------------------------------------------------- //
+    // handle the image search request
+
+    function imageSearchRequest() {
+        let tags = document.getElementById('imageSearchTagInput').value;
+        // on firefox prevents NS_BINDING_ERROR because submit button overwrite
+        event.preventDefault()
+        try {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                let response_items = JSON.parse(this.responseText);
+                if (response_items.length === 0) {
+                    console.log('Nothing found');
+                    nothing_found_toast();
+                } else {
+                    console.log('found something');
+                    console.log(response_items);
+                    document.getElementById('pageNavigation').style.display = 'block';
+                    items = response_items;
+                    pages = Math.ceil(items.length / itemsPerPage);
+
+                    const resultHint = document.getElementById('resultHint');
+                    resultHint.textContent = "Found " + items.length + " images on " + pages + " pages.";
+
+                    loadPage();
+                }
+            }
+            xhttp.open("GET", "/search?labels=" + JSON.stringify(tags.split(",")));
+            xhttp.send();
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message)
+        }
+    }
+
+    function nothing_found_toast() {
+        const toastContainer = document.getElementById('nothingFoundToasts');
+        toastContainer.innerHTML = '';
+
+        const new_toast = document.createElement('div');
+        new_toast.id = '404Toast';
+        new_toast.classList.add('toast');
+        new_toast.classList.add('mb-1');
+        new_toast.setAttribute('role', 'alert');
+        new_toast.setAttribute('aria-live', 'assertive');
+        new_toast.setAttribute('aria-atomic', 'true');
+        new_toast.setAttribute('data-delay', '2000');
+
+        const new_toast_header = document.createElement('div');
+        new_toast_header.classList.add('toast-header');
+
+        const new_toast_header_strong = document.createElement('strong');
+        new_toast_header_strong.classList.add('mr-auto');
+        new_toast_header_strong.innerText = 'Nothing found!';
+
+        const new_toast_body = document.createElement('div');
+        new_toast_body.classList.add('toast-body');
+
+        const TextLabels = document.createElement('p');
+        const TextLabelsTitle = document.createElement('span');
+        TextLabelsTitle.textContent = 'Labels: ';
+        TextLabels.appendChild(TextLabelsTitle);
+        document.getElementById('imageSearchTagInput').value.split(",").forEach(function(value, index, array) {
+            const badge = document.createElement("span")
+            badge.className = "badge badge-primary bg-primary mx-1";
+            badge.textContent = String(value);
+            TextLabels.appendChild(badge)
+        });
+        new_toast_body.appendChild(TextLabels);
+
+        // new_toast_body.innerText = JSON.stringify(document.getElementById('imageSearchTagInput').value.split(","));
+
+        new_toast_header.appendChild(new_toast_header_strong);
+        new_toast.appendChild(new_toast_header);
+        new_toast.appendChild(new_toast_body);
+
+        toastContainer.appendChild(new_toast);
+        const toast = new bootstrap.Toast(document.getElementById('404Toast'));
+        toast.show();
+    }
+
+    function loadPage() {
+        const slices = items.slice((currentPage - 1) * itemsPerPage, ((currentPage - 1) * itemsPerPage) + itemsPerPage);
+        let itemPageLabel = document.getElementById('itemPage');
+        itemPageLabel.textContent = String(currentPage) + " / " + String(pages);
+
+        let results = document.getElementById('searchResults');
+        results.innerHTML = '';
+        slices.forEach(function(value, index, array) {
+            if (index >= itemsPerPage) {
+                        return;
+                    }
+
+                    const div = document.createElement('div');
+                    div.classList.add('col-sm-3');
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.classList.add('mt-2');
+
+                    const cardImage = document.createElement('img');
+                    cardImage.classList.add('card-img-top');
+                    cardImage.src = '/image/id/' + value.id + '?orientation=portrait&width=480';
+                    card.appendChild(cardImage);
+
+                    const cardBody = document.createElement('div');
+                    cardBody.classList.add('card-body');
+                    const cardText1 = document.createElement('p');
+                    cardText1.textContent = 'ID: ' + value.id
+                    cardBody.appendChild(cardText1);
+
+                    const cardTextLabels = document.createElement('p');
+                    const cardTextLabelsTitle = document.createElement('span');
+                    cardTextLabelsTitle.textContent = 'Labels: ';
+                    cardTextLabels.appendChild(cardTextLabelsTitle);
+                    value.labels.forEach(function(value, index, array){
+                        const badge = document.createElement("span")
+                        badge.className = "badge badge-primary bg-primary mx-1";
+                        badge.textContent = String(value);
+                        cardTextLabels.appendChild(badge)
+                    });
+                    cardBody.appendChild(cardTextLabels);
+
+                    const download = document.createElement('a');
+                    download.href = '#';
+                    download.classList.add('card-link');
+                    download.textContent = 'inspect';
+                    download.addEventListener('click', function(){
+                        window.open('/image/id/' + value.id, '_blank');
+                    });
+                    cardBody.appendChild(download);
+
+                    card.appendChild(cardBody);
+                    div.appendChild(card);
+                    results.appendChild(div);
+                });
+    }
+    // ---------------------------------------------------------------------------------------------------- //
+    </script>
+</body>
 </html>

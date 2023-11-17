@@ -21,7 +21,7 @@ router = APIRouter()
 allowed_content_type = ["jpeg", "jpg", "png"]
 
 
-@router.post('/upload', response_model=schemas.Item)
+@router.post('/upload', response_model=schemas.Item, tags=["upload routes"])
 async def upload_image(file: UploadFile, labels: str | None = None, db: Session = Depends(get_db)):
     """
     Upload an image file to the database. This is the main upload route. All incoming pictures will be processed here

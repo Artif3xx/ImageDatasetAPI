@@ -5,11 +5,12 @@ crud stands for c - create, r - request, u - update and d - delete.
 
 from __future__ import annotations
 
+import collections
 from logging import getLogger
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DataError
-from api.src.tools.FolderTools import FolderTools
 
+from api.src.tools.FolderTools import FolderTools
 from . import models, schemas
 
 Logger = getLogger(__name__)
@@ -173,13 +174,14 @@ def delete_item(db: Session, item: schemas.Item):
     :param item: the item to delete
     :return: the deleted item from the database
     """
+
     try:
+        image_filepath: str = item.path
         db_item = db.get(models.Item, item.id)
         db.delete(db_item)
         db.commit()
-        db.refresh(db_item)
-        FolderTools.deleteFile(item.path)
-        Logger.info("file deleted: %s", item.path)
+        FolderTools.deleteFile(filepath=image_filepath)
+        Logger.info("file deleted: %s", image_filepath)
         return db_item
     except IntegrityError as e:
         db.rollback()
@@ -193,3 +195,79 @@ def delete_item(db: Session, item: schemas.Item):
         db.rollback()
         Logger.error("SQLAlchemyError: %s", str(e))
         return {"error": "SQLAlchemyError: " + str(e)}
+
+
+def get_next_item(db: Session, current_id: int):
+    """
+    get the next item from the database by an id
+
+    :param db: the database session, used to query the database
+    :param current_id: the id to start the search from
+    :return: the next item from the database
+    """
+    next_item = db.query(models.Item).filter(models.Item.id > current_id).first()
+    return next_item if next_item else None
+
+
+def get_previous_item(db: Session, current_id: int):
+    """
+    get the previous item from the database by an id
+
+    :param db: the database session, used to query the database
+    :param current_id: the id to start the search from
+    :return: the previous item from the database
+    """
+    previous_item = db.query(models.Item).filter(models.Item.id < current_id).order_by(models.Item.id.desc()).first()
+    return previous_item if previous_item else None
+
+
+def get_last_item(db: Session):
+    """
+    get the last item from the database
+
+    :param db: the database session, used to query the database
+    :return: the last item from the database
+    """
+    last_item = db.query(models.Item).order_by(models.Item.id.desc()).first()
+    return last_item if last_item else None
+
+
+def get_first_item(db: Session):
+    """
+    get the first item from the database
+
+    :param db: the database session, used to query the database
+    :return: the first item from the database
+    """
+    last_item = db.query(models.Item).order_by(models.Item.id).first()
+    return last_item if last_item else None
+
+
+def get_labels(db: Session):
+    """
+    get all labels from the database
+
+    :param db: the database session, used to query the database
+    :return: all available labels from the database
+    """
+    item_labels = db.query(models.Item.labels).all()
+    # item_labels = [[['labels 1', 'label2']], [['labels 1', 'label2']]]
+    all_labels = []
+    for labels in item_labels:
+        for label in labels[0]:
+            if label not in all_labels:
+                all_labels.append(label)
+    return all_labels
+
+
+def get_ids(db: Session):
+    """
+    get all ids from the database
+
+    :param db: the database session, used to query the database
+    :return: all available ids from the database
+    """
+    item_ids = db.query(models.Item.id).all()
+    print([item for item, count in collections.Counter(item_ids).items() if count > 1])
+
+    return [int(i[0]) for i in item_ids]
