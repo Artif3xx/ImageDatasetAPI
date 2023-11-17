@@ -139,4 +139,3 @@ async def get_random_item(db: Session = Depends(get_db)):
     """
     random_id = random.sample(crud.get_ids(db), 1)
     return crud.get_item_by_id(db, item_id=random_id)
-
