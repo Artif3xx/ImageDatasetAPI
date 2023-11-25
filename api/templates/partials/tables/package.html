@@ -1,0 +1,50 @@
+<div>
+  <table class="table">
+    <tbody id="apiInfoTableBody">
+      <!-- items will be generated here -->
+    </tbody>
+  </table>
+
+  <script>
+    // init function for the partial
+    window.onload = function () {
+      console.log("buildApiTable");
+      try {
+        const table = document.getElementById("apiInfoTableBody");
+        const xhttp = new XMLHttpRequest();
+          xhttp.onload = function() {
+            let response_items = JSON.parse(this.responseText);
+
+            console.log(response_items);
+
+            const sortedArray = Object.entries(response_items);
+            sortedArray.forEach(([key, value]) => {
+                // console.log(`Key: ${key}, value: ${value}`);
+
+                const row = document.createElement("tr");
+
+                const td_label = document.createElement("td");
+                td_label.textContent = String(key);
+                row.appendChild(td_label);
+
+                const td_amount = document.createElement("td");
+                if (value.hasOwnProperty('url')) {
+                  console.log("repository");
+                  td_amount.innerHTML = "<a href=\"" + value.url + "\" target=\"_blank\">" + value.url + "</a>";
+                } else {
+                  td_amount.textContent = String(value);
+                }
+
+                row.appendChild(td_amount);
+
+                table.appendChild(row);
+            });
+          }
+          xhttp.open("GET", "/info");
+          xhttp.send();
+      } catch (error) {
+        console.log("Fehler bei der Anfrage: " + error.message)
+      }
+    }
+  </script>
+</div>

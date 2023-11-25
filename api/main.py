@@ -39,14 +39,32 @@ async def get_index(request: Request):
 
 @app.get("/docswrap", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_docsWrap(request: Request):
+    """
+    get the docs page of the project
+
+    :param request: web request
+    :return: the docs template as response
+    """
     return templates.TemplateResponse("docswrap.html", {"request": request})
 
 
 @app.get("/imageview", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_imageView(request: Request):
+    """
+    get the image view page of the project
+
+    :param request: web request
+    :return: the image view template as response
+    """
     return templates.TemplateResponse("imageview.html", {"request": request})
 
 
 @app.get("/upload", response_class=HTMLResponse, tags=["HTML pages"])
-async def get_imageView(request: Request):
+async def get_upload(request: Request):
+    """
+    get the upload page of the project
+
+    :param request: web request
+    :return: the upload template as response
+    """
     return templates.TemplateResponse("upload.html", {"request": request})

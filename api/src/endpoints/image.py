@@ -7,16 +7,17 @@ from __future__ import annotations
 import os
 import random
 
+from io import BytesIO
+import numpy as np
+import cv2 as cv
+from PIL import Image
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse, Response
 
 from api.src.database import crud
 from api.src.database.database import get_db
 
-import numpy as np
-import cv2 as cv
-from io import BytesIO
-from PIL import Image
 
 router = APIRouter()
 
@@ -48,40 +49,41 @@ async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None =
         filepath = imageData.path
 
     # check if the image exists
-    if os.path.exists(filepath):
-        # ----------------------------------------------------------------------------------------------------
-        # check if an orientations or a width is passed as parameter
-        if orientation or width:
-            image = cv.imread(filepath)
-            # handle the orientation parameter
-            if orientation:
-                if orientation not in valid_orientations:
-                    raise HTTPException(status_code=400, detail={"error": "invalid orientation parameter",
-                                                                 "valid orientations": valid_orientations})
-                if orientation == "landscape":
-                    if image.shape[0] > image.shape[1]:
-                        image = cv.rotate(image, cv.ROTATE_90_CLOCKWISE)
-                elif orientation == "portrait":
-                    if image.shape[0] < image.shape[1]:
-                        image = cv.rotate(image, cv.ROTATE_90_CLOCKWISE)
-                elif orientation == "square":
-                    if width is None:
-                        raise HTTPException(status_code=400, detail={"error": "width parameter is required "
-                                                                              "when using square orientation"})
-                    image = cv.resize(image, (width, width))
-                    return Response(content=image_as_bytes(cv.cvtColor(image, cv.COLOR_BGR2RGB)),
-                                    headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=400, detail={"error": "file not found in the filesystem"})
 
-            # handle the width parameter
-            if width:
-                old_dimension_ratio = width / image.shape[1]
-                new_height = int(image.shape[0] * old_dimension_ratio)
-                image = cv.resize(image, (width, new_height))
-            return Response(content=image_as_bytes(cv.cvtColor(image, cv.COLOR_BGR2RGB)),
-                            headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
-        # ----------------------------------------------------------------------------------------------------
-        return FileResponse(filepath, headers={"Content-Type": "image/jpeg"})
-    raise HTTPException(status_code=400, detail={"error": "file not found in the filesystem"})
+    # ----------------------------------------------------------------------------------------------------
+    # check if an orientations or a width is passed as parameter
+    if orientation or width:
+        image = cv.imread(filepath)
+        # handle the orientation parameter
+        if orientation:
+            if orientation not in valid_orientations:
+                raise HTTPException(status_code=400, detail={"error": "invalid orientation parameter",
+                                                             "valid orientations": valid_orientations})
+            if orientation == "landscape":
+                if image.shape[0] > image.shape[1]:
+                    image = cv.rotate(image, cv.ROTATE_90_CLOCKWISE)
+            elif orientation == "portrait":
+                if image.shape[0] < image.shape[1]:
+                    image = cv.rotate(image, cv.ROTATE_90_CLOCKWISE)
+            elif orientation == "square":
+                if width is None:
+                    raise HTTPException(status_code=400, detail={"error": "width parameter is required "
+                                                                          "when using square orientation"})
+                image = cv.resize(image, (width, width))
+                return Response(content=image_as_bytes(cv.cvtColor(image, cv.COLOR_BGR2RGB)),
+                                headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
+
+        # handle the width parameter
+        if width:
+            old_dimension_ratio = width / image.shape[1]
+            new_height = int(image.shape[0] * old_dimension_ratio)
+            image = cv.resize(image, (width, new_height))
+        return Response(content=image_as_bytes(cv.cvtColor(image, cv.COLOR_BGR2RGB)),
+                        headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
+    # ----------------------------------------------------------------------------------------------------
+    return FileResponse(filepath, headers={"Content-Type": "image/jpeg"})
 
 
 def image_as_bytes(src_image: np.ndarray) -> bytes:

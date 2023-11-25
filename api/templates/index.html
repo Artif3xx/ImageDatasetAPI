@@ -37,14 +37,49 @@
                 </ul>
             </nav>
         </div>
+
+        <div class="card text-center">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">Active</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" href="#">Disabled</a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Special title treatment</h5>
+            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+          </div>
+        </div>
+
+        <div class="container border rounded mt-3 mb-3">
+            <div class="p-3">
+                <h2>Application Information</h2>
+            </div>
+            {% include 'partials/tables/package.html' %}
+        </div>
+        <div class="container border rounded mt-3 mb-3">
+            <div class="p-3">
+                <h2>Label Information</h2>
+            </div>
+            {% include 'partials/tables/labels.html' %}
+        </div>
+
+    {% include 'partials/footer.html' %}
     </div>
 
-    <!-- Toasts after uploading an image -->
+    <!-- Toasts if no images where found -->
     <div aria-live="polite" aria-atomic="true">
         <div style="position: absolute; top: 0; right: 0;" id="nothingFoundToasts" class="gap-2"></div>
     </div>
 
-    {% include 'partials/footer.html' %}
     <script>
     const example = UseBootstrapTag(document.getElementById('imageSearchTagInput'))
 

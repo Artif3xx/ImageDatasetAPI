@@ -1,0 +1,70 @@
+<div>
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Label</th>
+        <th scope="col">Image Amount</th>
+      </tr>
+    </thead>
+
+    <tbody id="infoTableBody">
+      <!-- items will be generated here -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    init_InfoTable();
+  });
+
+  // init function for the partial
+  function init_InfoTable() {
+    console.log("buildLabelTable");
+    try {
+      const table = document.getElementById("infoTableBody");
+      const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+          let response_items = JSON.parse(this.responseText);
+
+          const sortedArray = Object.entries(response_items);
+          sortedArray.sort((a, b) => b[1].count - a[1].count);
+
+          let scope_count = 1
+          sortedArray.forEach(([key, value]) => {
+              if (scope_count > 10) {
+                return;
+              }
+
+              // console.log(`Key: ${key}, Count: ${value.count}`);
+
+              const row = document.createElement("tr");
+              const th = document.createElement("th");
+              th.setAttribute("scope", "row");
+              th.textContent = String(scope_count);
+              scope_count++;
+              row.appendChild(th);
+
+              const td_label = document.createElement("td");
+              td_label.textContent = String(key);
+              row.appendChild(td_label);
+
+              const td_amount = document.createElement("td");
+              if (value.hasOwnProperty("count")) {
+                td_amount.textContent = String(value.count);
+              } else {
+                td_amount.textContent = "count not found";
+              }
+              row.appendChild(td_amount);
+
+              table.appendChild(row);
+          });
+        }
+        xhttp.open("GET", "/info/labels");
+        xhttp.send();
+    } catch (error) {
+      console.log("Fehler bei der Anfrage: " + error.message)
+    }
+  }
+</script>
