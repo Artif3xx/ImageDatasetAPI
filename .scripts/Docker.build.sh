@@ -63,7 +63,7 @@ function build_docker_amd64() {
     docker buildx build --platform linux/amd64 -t ${AUTHOR}/${IMAGE_NAME}_amd64:"${VERSION}" ${DOCKERCONTEXT_PATH}
     docker buildx build --platform linux/amd64 -t ${AUTHOR}/${IMAGE_NAME}_amd64:"latest" ${DOCKERCONTEXT_PATH}
     # Docker-Image in den Zielordner speichern
-    docker save -o "${SAVE_FOLDER}/${IMAGE_NAME}_${VERSION}_amd64.tar" "${AUTHOR}/${IMAGE_NAME}_amd64"
+    docker save -o "${SAVE_FOLDER}/${IMAGE_NAME}_${VERSION}_amd64.tar" "${AUTHOR}/${IMAGE_NAME}_amd64:latest"
 
     echo "Docker-images created successfully for amd64! You can find the images here: ${SAVE_FOLDER}"
 
@@ -92,7 +92,7 @@ function build_docker_arm64() {
     docker buildx build --platform linux/arm64 -t "${AUTHOR}/${IMAGE_NAME}_arm64:latest" ${DOCKERCONTEXT_PATH}
 
     # Docker-Image in den Zielordner speichern
-    docker save -o "${SAVE_FOLDER}/${IMAGE_NAME}_${VERSION}_arm64.tar" "${AUTHOR}/${IMAGE_NAME}_arm64"
+    docker save -o "${SAVE_FOLDER}/${IMAGE_NAME}_${VERSION}_arm64.tar" "${AUTHOR}/${IMAGE_NAME}_arm64:latest"
 
     if [ -z "$DOCKER_REGISTER" ]; then
       echo "There is no Docker Register defined! Update the script to push the Docker to a Register!"
