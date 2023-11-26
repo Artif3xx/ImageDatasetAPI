@@ -7,7 +7,7 @@ you can simply request an image from the api. You can see the available endpoint
 
 There is also a custom frontend to manage the dataset, update labels and metadata. More information coming soon!
 
---- 
+![ImageDatasetAPI](.assets/readme/SeachPage.gif)
 
 ## Docker
 
