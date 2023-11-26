@@ -252,11 +252,13 @@ def get_labels(db: Session):
     """
     item_labels = db.query(models.Item.labels).all()
     # item_labels = [[['labels 1', 'label2']], [['labels 1', 'label2']]]
-    all_labels = []
+    all_labels = {}
     for labels in item_labels:
         for label in labels[0]:
             if label not in all_labels:
-                all_labels.append(label)
+                all_labels[label] = {'count': 1}
+            else:
+                all_labels[label]['count'] += 1
     return all_labels
 
 

@@ -4,9 +4,10 @@ this file contains the /info endpoints for the api
 from __future__ import annotations
 import json
 
-from fastapi import APIRouter, Depends
-from api.src.database.database import get_db
 from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
+
+from api.src.database.database import get_db
 from api.src.database import crud
 
 router = APIRouter()
@@ -19,7 +20,7 @@ async def get_api_info():
 
     :return: the info as a json string
     """
-    info = json.loads("api/package.json")
+    info = json.load(fp=open("api/package.json"))
     return info
 
 

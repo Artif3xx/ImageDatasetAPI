@@ -3,12 +3,13 @@ this file contains the /item endpoints for the api
 """
 
 from __future__ import annotations
-from fastapi import APIRouter, Depends, HTTPException
+import random
 
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from api.src.database import crud, schemas
 from api.src.database.database import get_db
-import random
 
 router = APIRouter()
 
@@ -41,7 +42,7 @@ async def get_item_by_id(item_id: int, db: Session = Depends(get_db)):
     """
     if item_id == -1:
         return crud.get_last_item(db)
-    elif item_id == 0:
+    if item_id == 0:
         return crud.get_first_item(db)
     item = crud.get_item_by_id(db, item_id=item_id)
     if item is None:

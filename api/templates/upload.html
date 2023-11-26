@@ -7,10 +7,10 @@
 <body>
     {% include 'partials/navbar.html' %}
 
-    <div class="vh-100 vw-100">
-        <div class="position-relative h-50">
-            <div class="position-absolute top-50 start-50 translate-middle w-75">
-                <div class="container mt-2 mb-2 border rounded p-5">
+    <div class="container-fluid vh-100">
+        <div class="row h-75 align-items-center justify-content-center">
+            <div class="col-md-8">
+                <div class="container border rounded p-5">
                     <div class="mb-5">
                         <label for="imageUploadFileInput" class="form-label">Upload your Images here</label>
                         <input class="form-control" type="file" id="imageUploadFileInput" multiple />
@@ -31,79 +31,80 @@
         </div>
     </div>
 
+    {% include 'partials/footer.html' %}
+
     <!-- Toasts after uploading an image -->
     <div aria-live="polite" aria-atomic="true">
         <div style="position: absolute; top: 0; right: 0;" id="UploadToasts" class="gap-2"></div>
     </div>
-
-    {% include 'partials/footer.html' %}
-    <script>
-        const example = UseBootstrapTag(document.getElementById('imageUploadTagInput'))
-
-        document.getElementById('submitUploadButton').addEventListener('click', function() {
-            uploadImages()
-        });
-
-        function uploadImages() {
-            const imageFileInput = document.getElementById('imageUploadFileInput');
-            const files = imageFileInput.files;
-            let tags = document.getElementById('imageUploadTagInput').value;
-
-            try {
-                const toastContainer = document.getElementById('UploadToasts')
-                for (let i = 0; i < files.length; i++) {
-                    const image = files[i];
-
-                    const formData = new FormData();
-                    formData.append('file', image);
-
-                    fetch('/upload?labels=' + JSON.stringify(tags.split(",")), {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Upload erfolgreich:', data);
-                        // Hier kannst du die Erfolgsantwort verarbeiten
-
-                        const new_toast = document.createElement('div')
-                        new_toast.id = 'uploadToast' + String(i)
-                        new_toast.classList.add('toast')
-                        new_toast.classList.add('mb-1')
-                        new_toast.setAttribute('role', 'alert')
-                        new_toast.setAttribute('aria-live', 'assertive')
-                        new_toast.setAttribute('aria-atomic', 'true')
-                        new_toast.setAttribute('data-delay', '2000')
-
-                        const new_toast_header = document.createElement('div')
-                        new_toast_header.classList.add('toast-header')
-
-                        const new_toast_header_strong = document.createElement('strong')
-                        new_toast_header_strong.classList.add('mr-auto')
-                        new_toast_header_strong.innerText = 'Upload successfully'
-
-                        const new_toast_body = document.createElement('div')
-                        new_toast_body.classList.add('toast-body')
-                        new_toast_body.innerText = 'ID: ' + data.id + '\nLabels: ' + data.labels
-
-                        new_toast_header.appendChild(new_toast_header_strong)
-                        new_toast.appendChild(new_toast_header)
-                        new_toast.appendChild(new_toast_body)
-
-                        toastContainer.appendChild(new_toast)
-                        const toast = new bootstrap.Toast(document.getElementById('uploadToast' + String(i)));
-                        toast.show()
-                    })
-                    .catch(error => {
-                        console.error('Fehler beim Upload:', error);
-                        // Hier kannst du den Fehler verarbeiten
-                    });
-                }
-            } catch (error) {
-                console.log("Fehler bei der Anfrage: " + error.message)
-            }
-        }
-    </script>
 </body>
-
 </html>
+
+<script>
+    const example = UseBootstrapTag(document.getElementById('imageUploadTagInput'))
+
+    document.getElementById('submitUploadButton').addEventListener('click', function() {
+        uploadImages()
+    });
+
+    function uploadImages() {
+        const imageFileInput = document.getElementById('imageUploadFileInput');
+        const files = imageFileInput.files;
+        let tags = document.getElementById('imageUploadTagInput').value;
+
+        try {
+            const toastContainer = document.getElementById('UploadToasts')
+            for (let i = 0; i < files.length; i++) {
+                const image = files[i];
+
+                const formData = new FormData();
+                formData.append('file', image);
+
+                fetch('/upload?labels=' + JSON.stringify(tags.split(",")), {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Upload erfolgreich:', data);
+                    // Hier kannst du die Erfolgsantwort verarbeiten
+
+                    const new_toast = document.createElement('div')
+                    new_toast.id = 'uploadToast' + String(i)
+                    new_toast.classList.add('toast')
+                    new_toast.classList.add('mb-1')
+                    new_toast.setAttribute('role', 'alert')
+                    new_toast.setAttribute('aria-live', 'assertive')
+                    new_toast.setAttribute('aria-atomic', 'true')
+                    new_toast.setAttribute('data-delay', '2000')
+
+                    const new_toast_header = document.createElement('div')
+                    new_toast_header.classList.add('toast-header')
+
+                    const new_toast_header_strong = document.createElement('strong')
+                    new_toast_header_strong.classList.add('mr-auto')
+                    new_toast_header_strong.innerText = 'Upload successfully'
+
+                    const new_toast_body = document.createElement('div')
+                    new_toast_body.classList.add('toast-body')
+                    new_toast_body.innerText = 'ID: ' + data.id + '\nLabels: ' + data.labels
+
+                    new_toast_header.appendChild(new_toast_header_strong)
+                    new_toast.appendChild(new_toast_header)
+                    new_toast.appendChild(new_toast_body)
+
+                    toastContainer.appendChild(new_toast)
+                    const toast = new bootstrap.Toast(document.getElementById('uploadToast' + String(i)));
+                    toast.show()
+                })
+                .catch(error => {
+                    console.error('Fehler beim Upload:', error);
+                    // Hier kannst du den Fehler verarbeiten
+                });
+            }
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message)
+        }
+    }
+</script>
+
