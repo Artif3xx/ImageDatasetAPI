@@ -15,13 +15,8 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    init_InfoTable();
-  });
-
   // init function for the partial
-  function init_InfoTable() {
-    console.log("buildLabelTable");
+  document.addEventListener('DOMContentLoaded', function() {
     try {
       const table = document.getElementById("infoTableBody");
       const xhttp = new XMLHttpRequest();
@@ -33,10 +28,6 @@
 
           let scope_count = 1
           sortedArray.forEach(([key, value]) => {
-              if (scope_count > 10) {
-                return;
-              }
-
               // console.log(`Key: ${key}, Count: ${value.count}`);
 
               const row = document.createElement("tr");
@@ -66,5 +57,5 @@
     } catch (error) {
       console.log("Fehler bei der Anfrage: " + error.message)
     }
-  }
+  });
 </script>

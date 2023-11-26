@@ -17,59 +17,50 @@
 
         </form>
 
-        <div class="row" id="searchResults"></div>
-
-        <!-- Pagination -->
-        <div class="justify-content-center d-flex mt-2">
-            <nav id="pageNavigation" style="display: none;">
-                <ul class="pagination" id="itemPages">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous" id="previousItemPage">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
+        <div class="card text-center">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="labelInfoTab" href="#">Label Information</a>
                     </li>
-                    <li class="page-item"><a id="itemPage" class="page-link" href="#">1</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next" id="nextItemPage">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
+                    <li class="nav-item">
+                        <a class="nav-link" id="appInfoTab" href="#">Application Information</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="searchResultTab" href="#">Search Results</a>
                     </li>
                 </ul>
-            </nav>
-        </div>
-
-        <div class="card text-center">
-          <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs">
-              <li class="nav-item">
-                <a class="nav-link active" href="#">Active</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
-              </li>
-            </ul>
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Special title treatment</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-        </div>
-
-        <div class="container border rounded mt-3 mb-3">
-            <div class="p-3">
-                <h2>Application Information</h2>
             </div>
-            {% include 'partials/tables/package.html' %}
-        </div>
-        <div class="container border rounded mt-3 mb-3">
-            <div class="p-3">
-                <h2>Label Information</h2>
+            <div class="card-body">
+                <div id="labelInfoContent" style="display: none;">
+                    {% include 'partials/tables/labels.html' %}
+                </div>
+                <div id="appInfoContent">
+                    {% include 'partials/tables/package.html' %}
+                </div>
+                <div id="searchResultContent">
+                    <div class="row" id="searchResults"></div>
+
+                    <!-- Pagination -->
+                    <div class="justify-content-center d-flex mt-2">
+                        <nav id="pageNavigation" style="display: none;">
+                            <ul class="pagination" id="itemPages">
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Previous" id="previousItemPage">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item"><a id="itemPage" class="page-link" href="#">1</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Next" id="nextItemPage">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
             </div>
-            {% include 'partials/tables/labels.html' %}
         </div>
 
     {% include 'partials/footer.html' %}
@@ -80,7 +71,82 @@
         <div style="position: absolute; top: 0; right: 0;" id="nothingFoundToasts" class="gap-2"></div>
     </div>
 
-    <script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialisierungsfunktion aufrufen
+        initCard();
+    });
+
+    function initCard() {
+        const appInfoTab = document.getElementById("appInfoTab");
+        const labelInfoTab = document.getElementById("labelInfoTab");
+        const searchResultTab = document.getElementById("searchResultTab");
+
+        const appInfoContent = document.getElementById("appInfoContent");
+        const labelInfoContent = document.getElementById("labelInfoContent");
+        const searchResultContent = document.getElementById("searchResultContent");
+
+        appInfoTab.addEventListener("click", function () {
+            event.preventDefault();
+            showTab(appInfoContent, labelInfoContent, searchResultContent,
+                    appInfoTab, labelInfoTab, searchResultTab);
+        });
+
+        labelInfoTab.addEventListener("click", function () {
+            event.preventDefault();
+            showTab(labelInfoContent, appInfoContent, searchResultContent,
+                    labelInfoTab, appInfoTab, searchResultTab);
+        });
+
+        searchResultTab.addEventListener("click", function () {
+            event.preventDefault();
+            showTab(searchResultContent, appInfoContent, labelInfoContent,
+                    searchResultTab, appInfoTab, labelInfoTab);
+        });
+
+        showTab(labelInfoContent, appInfoContent, searchResultContent,
+                labelInfoTab, appInfoTab, searchResultTab);
+    }
+
+    function showSearchResultTab() {
+        const appInfoTab = document.getElementById("appInfoTab");
+        const labelInfoTab = document.getElementById("labelInfoTab");
+        const searchResultTab = document.getElementById("searchResultTab");
+
+        const appInfoContent = document.getElementById("appInfoContent");
+        const labelInfoContent = document.getElementById("labelInfoContent");
+        const searchResultContent = document.getElementById("searchResultContent");
+
+        showTab(searchResultContent, appInfoContent, labelInfoContent,
+                    searchResultTab, appInfoTab, labelInfoTab);
+    }
+
+    function showTab(showContent, hideContent1, hideContent2, activateTab, deactivateTab1, deactivateTab2) {
+        showContent.style.display = "block";
+        hideContent1.style.display = "none";
+        hideContent2.style.display = "none";
+
+        activateTab.classList.add("active");
+        deactivateTab1.classList.remove("active");
+        deactivateTab2.classList.remove("active");
+    }
+
+    function hideBothTabs() {
+        const appInfoContent = document.getElementById("appInfoContent");
+        const labelInfoContent = document.getElementById("labelInfoContent");
+
+        appInfoContent.style.display = "none";
+        labelInfoContent.style.display = "none";
+
+        // Optional: Deaktiviere auch die aktiven Klassen in den Tabs
+        const appInfoTab = document.getElementById("appInfoTab");
+        const labelInfoTab = document.getElementById("labelInfoTab");
+
+        appInfoTab.classList.remove("active");
+        labelInfoTab.classList.remove("active");
+    }
+
+
     const example = UseBootstrapTag(document.getElementById('imageSearchTagInput'))
 
     let items = []
@@ -117,11 +183,11 @@
             xhttp.onload = function() {
                 let response_items = JSON.parse(this.responseText);
                 if (response_items.length === 0) {
-                    console.log('Nothing found');
+                    // console.log('Nothing found');
                     nothing_found_toast();
                 } else {
-                    console.log('found something');
-                    console.log(response_items);
+                    // console.log('found something');
+                    // console.log(response_items);
                     document.getElementById('pageNavigation').style.display = 'block';
                     items = response_items;
                     pages = Math.ceil(items.length / itemsPerPage);
@@ -129,6 +195,7 @@
                     const resultHint = document.getElementById('resultHint');
                     resultHint.textContent = "Found " + items.length + " images on " + pages + " pages.";
 
+                    showSearchResultTab();
                     loadPage();
                 }
             }
@@ -241,6 +308,6 @@
                 });
     }
     // ---------------------------------------------------------------------------------------------------- //
-    </script>
+</script>
 </body>
 </html>

@@ -7,15 +7,14 @@
 
   <script>
     // init function for the partial
-    window.onload = function () {
-      console.log("buildApiTable");
+    document.addEventListener("DOMContentLoaded", function () {
       try {
         const table = document.getElementById("apiInfoTableBody");
         const xhttp = new XMLHttpRequest();
           xhttp.onload = function() {
             let response_items = JSON.parse(this.responseText);
 
-            console.log(response_items);
+            // console.log(response_items);
 
             const sortedArray = Object.entries(response_items);
             sortedArray.forEach(([key, value]) => {
@@ -29,7 +28,6 @@
 
                 const td_amount = document.createElement("td");
                 if (value.hasOwnProperty('url')) {
-                  console.log("repository");
                   td_amount.innerHTML = "<a href=\"" + value.url + "\" target=\"_blank\">" + value.url + "</a>";
                 } else {
                   td_amount.textContent = String(value);
@@ -45,6 +43,6 @@
       } catch (error) {
         console.log("Fehler bei der Anfrage: " + error.message)
       }
-    }
+    });
   </script>
 </div>

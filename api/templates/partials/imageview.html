@@ -134,10 +134,12 @@
     });
 
     const updateModal = document.getElementById('updateModal');
-    // const example = UseBootstrapTag(document.getElementById('labelUpdateModalInput'));
 
-    updateModal.onload = async function() {
+    updateModal.onload = function() {
         // await get_item();
+        // console.log("update modal loaded");
+        const labels = document.getElementById('labelUpdateModalInput');
+        labels.value = "label1, label2, label3";
     }
 
     // ---------------------------------------------------------------------------------------------------- //
@@ -231,8 +233,6 @@
         idInput.value = aktuelleID;
         await update_image();
     });
-
-
 
     async function get_next_id() {
         if (aktuelleID < 0) {
@@ -343,7 +343,7 @@
 
     async function update_image() {
         imageDisplay.src = "/image/id/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
-        console.log("aktuelle ID: " + aktuelleID);
+        // console.log("aktuelle ID: " + aktuelleID);
     }
 
     function update_labels(item) {
