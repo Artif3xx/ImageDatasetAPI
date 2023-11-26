@@ -11,3 +11,9 @@ out
 # ignore /docs folder untill we have a nice looking doc
 docs
 /examples/upload/
+
+# ignoring some file that may be interesting for the future
+/.scripts/IQA/
+/.scripts/IQO/
+/.scripts/OCR/
+/.scripts/statistics/

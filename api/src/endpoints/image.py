@@ -9,7 +9,6 @@ import random
 
 from io import BytesIO
 import numpy as np
-import cv2 as cv
 from PIL import Image
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -55,45 +54,45 @@ async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None =
     # ----------------------------------------------------------------------------------------------------
     # check if an orientations or a width is passed as parameter
     if orientation or width:
-        image = cv.imread(filepath)
+        image = Image.open(filepath)
         # handle the orientation parameter
         if orientation:
             if orientation not in valid_orientations:
                 raise HTTPException(status_code=400, detail={"error": "invalid orientation parameter",
                                                              "valid orientations": valid_orientations})
             if orientation == "landscape":
-                if image.shape[0] > image.shape[1]:
-                    image = cv.rotate(image, cv.ROTATE_90_CLOCKWISE)
+                if image.height > image.width:
+                    image = image.rotate(-90, expand=True)
             elif orientation == "portrait":
-                if image.shape[0] < image.shape[1]:
-                    image = cv.rotate(image, cv.ROTATE_90_CLOCKWISE)
+                if image.height < image.width:
+                    image = image.rotate(-90, expand=True)
             elif orientation == "square":
                 if width is None:
                     raise HTTPException(status_code=400, detail={"error": "width parameter is required "
                                                                           "when using square orientation"})
-                image = cv.resize(image, (width, width))
-                return Response(content=image_as_bytes(cv.cvtColor(image, cv.COLOR_BGR2RGB)),
+                image = image.resize((width, width))
+                return Response(content=image_as_bytes(image),
                                 headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
 
         # handle the width parameter
         if width:
-            old_dimension_ratio = width / image.shape[1]
-            new_height = int(image.shape[0] * old_dimension_ratio)
-            image = cv.resize(image, (width, new_height))
-        return Response(content=image_as_bytes(cv.cvtColor(image, cv.COLOR_BGR2RGB)),
+            old_dimension_ratio = width / image.width
+            new_height = int(image.height * old_dimension_ratio)
+            image = image.resize((width, new_height))
+        return Response(content=image_as_bytes(image),
                         headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
     # ----------------------------------------------------------------------------------------------------
     return FileResponse(filepath, headers={"Content-Type": "image/jpeg"})
 
 
-def image_as_bytes(src_image: np.ndarray) -> bytes:
+def image_as_bytes(src_image: Image) -> bytes:
     """
     Convert a numpy array to bytes. This is used to return the image as a file response
 
     :param src_image: the image as numpy array
     :return: the image as bytes
     """
-    image_pil = Image.fromarray(src_image)
+    image_pil = src_image
 
     with BytesIO() as buffer:
         image_pil.save(buffer, format="JPEG")
