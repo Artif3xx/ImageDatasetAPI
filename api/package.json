@@ -1,8 +1,17 @@
 {
     "name": "image-dataset-api",
-    "version": "0.3.2.2",
+    "version": "0.3.2.3",
     "license": "MIT",
-    "author": "castox",
+    "author": {
+        "name": "castox",
+        "url": "https://github.com/Artif3xx"
+    },
+    "contributors": [
+        {
+            "name": "cleha",
+            "url": "https://github.com/clehanka"
+        }
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/Artif3xx/ImageDatasetAPI"
