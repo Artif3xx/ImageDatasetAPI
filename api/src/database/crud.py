@@ -270,6 +270,4 @@ def get_ids(db: Session):
     :return: all available ids from the database
     """
     item_ids = db.query(models.Item.id).all()
-    print([item for item, count in collections.Counter(item_ids).items() if count > 1])
-
     return [int(i[0]) for i in item_ids]

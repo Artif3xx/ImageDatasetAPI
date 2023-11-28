@@ -13,10 +13,10 @@ from api.src.database import crud
 router = APIRouter()
 
 
-@router.get("/info", tags=["info routes"])
+@router.get("/info", tags=["Info Routes"])
 async def get_api_info():
     """
-    Get information about the image server and the api
+    Get information about the image server and the api \f
 
     :return: the info as a json string
     """
@@ -24,10 +24,10 @@ async def get_api_info():
     return info
 
 
-@router.get("/info/labels", tags=["info routes"])
+@router.get("/info/labels", tags=["Info Routes"])
 async def get_labels(db: Session = Depends(get_db)):
     """
-    Get all labels from the database
+    Get all labels from the database \f
 
     :param db: the database session to use
     :return: a list of all labels

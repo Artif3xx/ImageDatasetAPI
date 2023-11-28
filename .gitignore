@@ -10,7 +10,7 @@ out
 
 # ignore /docs folder untill we have a nice looking doc
 docs
-/examples/upload/
+/.assets/examples/upload/
 
 # ignoring some file that may be interesting for the future
 /.scripts/IQA/
