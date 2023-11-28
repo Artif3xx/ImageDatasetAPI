@@ -29,6 +29,16 @@
                 const td_amount = document.createElement("td");
                 if (value.hasOwnProperty('url')) {
                   td_amount.innerHTML = "<a href=\"" + value.url + "\" target=\"_blank\">" + value.url + "</a>";
+                } else if (Array.isArray(value)) {
+                  value.forEach(function (item, index) {
+                    console.log(item);
+                    let a = document.createElement("a");
+                    a.href = item.url;
+                    a.target = "_blank";
+                    a.textContent = item.url;
+                    td_amount.appendChild(a)
+                    td_amount.appendChild(document.createElement("br"));
+                  });
                 } else {
                   td_amount.textContent = String(value);
                 }

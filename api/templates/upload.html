@@ -41,70 +41,136 @@
 </html>
 
 <script>
-    const example = UseBootstrapTag(document.getElementById('imageUploadTagInput'))
+    let uploadTags = UseBootstrapTag(document.getElementById('imageUploadTagInput'));
+    let index_offset = 0
 
     document.getElementById('submitUploadButton').addEventListener('click', function() {
         uploadImages()
     });
 
     function uploadImages() {
-        const imageFileInput = document.getElementById('imageUploadFileInput');
-        const files = imageFileInput.files;
-        let tags = document.getElementById('imageUploadTagInput').value;
+        let tags = uploadTags.getValues();
+
+        console.log(tags);
+        let imageFileInput = document.getElementById('imageUploadFileInput');
+        let files = imageFileInput.files;
 
         try {
-            const toastContainer = document.getElementById('UploadToasts')
+            let valid = true;
             for (let i = 0; i < files.length; i++) {
-                const image = files[i];
+                let image = files[i];
+                index_offset += 1
 
-                const formData = new FormData();
+                let formData = new FormData();
                 formData.append('file', image);
 
-                fetch('/upload?labels=' + JSON.stringify(tags.split(",")), {
+                fetch('/upload?labels=' + JSON.stringify(tags), {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        valid = false;
+                    }
+                    return response.json()
+                })
                 .then(data => {
-                    console.log('Upload erfolgreich:', data);
-                    // Hier kannst du die Erfolgsantwort verarbeiten
-
-                    const new_toast = document.createElement('div')
-                    new_toast.id = 'uploadToast' + String(i)
-                    new_toast.classList.add('toast')
-                    new_toast.classList.add('mb-1')
-                    new_toast.setAttribute('role', 'alert')
-                    new_toast.setAttribute('aria-live', 'assertive')
-                    new_toast.setAttribute('aria-atomic', 'true')
-                    new_toast.setAttribute('data-delay', '2000')
-
-                    const new_toast_header = document.createElement('div')
-                    new_toast_header.classList.add('toast-header')
-
-                    const new_toast_header_strong = document.createElement('strong')
-                    new_toast_header_strong.classList.add('mr-auto')
-                    new_toast_header_strong.innerText = 'Upload successfully'
-
-                    const new_toast_body = document.createElement('div')
-                    new_toast_body.classList.add('toast-body')
-                    new_toast_body.innerText = 'ID: ' + data.id + '\nLabels: ' + data.labels
-
-                    new_toast_header.appendChild(new_toast_header_strong)
-                    new_toast.appendChild(new_toast_header)
-                    new_toast.appendChild(new_toast_body)
-
-                    toastContainer.appendChild(new_toast)
-                    const toast = new bootstrap.Toast(document.getElementById('uploadToast' + String(i)));
-                    toast.show()
+                    console.log(data.label)
+                    if (valid) {
+                        add_success_toast(data, index_offset)
+                    } else {
+                        add_error_toast(data, index_offset)
+                    }
+                    return null
                 })
                 .catch(error => {
-                    console.error('Fehler beim Upload:', error);
-                    // Hier kannst du den Fehler verarbeiten
+                    console.error('API request error: ', error);
                 });
             }
         } catch (error) {
-            console.log("Fehler bei der Anfrage: " + error.message)
+            console.log('JS error: ' + error.message)
         }
+    }
+
+    // functions to add toasts:
+    let toastContainer = document.getElementById('UploadToasts')
+    function add_success_toast(data, toast_id) {
+        let new_toast = document.createElement('div');
+        new_toast.id = 'uploadToast' + String(toast_id);
+        new_toast.classList.add('toast');
+        new_toast.classList.add('mb-1');
+        new_toast.setAttribute('role', 'alert');
+        new_toast.setAttribute('aria-live', 'assertive');
+        new_toast.setAttribute('aria-atomic', 'true');
+        new_toast.setAttribute('data-delay', '2000');
+
+        let new_toast_header = document.createElement('div');
+        new_toast_header.classList.add('toast-header');
+
+        let new_toast_header_strong = document.createElement('strong');
+        new_toast_header_strong.classList.add('mr-auto');
+        new_toast_header_strong.innerText = 'Upload successfully';
+
+        let new_toast_body = document.createElement('div');
+        new_toast_body.classList.add('toast-body');
+        new_toast_body.innerText = 'ID: ' + data.id + " with Labels: ";
+
+        let toastLabels = document.createElement("p")
+        data.labels.forEach(function(value, index, array) {
+            let badge = document.createElement("span");
+            badge.className = "badge badge-primary bg-primary mx-1";
+            badge.textContent = String(value);
+            toastLabels.appendChild(badge);
+        });
+        new_toast_body.appendChild(toastLabels);
+
+        new_toast_header.appendChild(new_toast_header_strong);
+        new_toast.appendChild(new_toast_header);
+        new_toast.appendChild(new_toast_body);
+
+        toastContainer.appendChild(new_toast);
+        let toast = new bootstrap.Toast(document.getElementById('uploadToast' + String(toast_id)));
+        toast.show()
+    }
+
+    function add_error_toast(data, toast_id) {
+        let new_toast = document.createElement('div')
+        new_toast.id = 'errorToast' + String(toast_id)
+        new_toast.classList.add('toast')
+        new_toast.classList.add('mb-1')
+        new_toast.setAttribute('role', 'alert')
+        new_toast.setAttribute('aria-live', 'assertive')
+        new_toast.setAttribute('aria-atomic', 'true')
+        new_toast.setAttribute('data-delay', '2000')
+
+        let new_toast_header = document.createElement('div')
+        new_toast_header.classList.add('toast-header')
+
+        let new_toast_header_strong = document.createElement('strong')
+        new_toast_header_strong.classList.add('mr-auto')
+        new_toast_header_strong.innerText = data.detail.message
+
+        let new_toast_body = document.createElement('div')
+        new_toast_body.classList.add('toast-body')
+
+        if (data.detail.hasOwnProperty('allowed_content_type')) {
+            new_toast_body.innerText += "Allowed content types: "
+            data.detail.allowed_content_type.forEach(function(value) {
+                new_toast_body.innerText += value + " "
+            })
+        }
+
+        if (data.detail.hasOwnProperty('content_type')) {
+            new_toast_body.innerText += "\nUploaded content type: " + data.detail.content_type
+        }
+
+        new_toast_header.appendChild(new_toast_header_strong)
+        new_toast.appendChild(new_toast_header)
+        new_toast.appendChild(new_toast_body)
+
+        toastContainer.appendChild(new_toast)
+        let toast = new bootstrap.Toast(document.getElementById('errorToast' + String(toast_id)));
+        toast.show()
     }
 </script>
 

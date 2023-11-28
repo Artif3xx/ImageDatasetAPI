@@ -22,7 +22,7 @@ PACKAGE_JSON_PATH="./api/package.json"
 # check if the package.json file exists
 if [ -f "$PACKAGE_JSON_PATH" ]; then
     # get the version from the package.json file
-    VERSION=$(grep -o '"version": *"[0-9.]*"' "$PACKAGE_JSON_PATH" | grep -o '[0-9.]*')
+    VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
 
     # check if the version is empty and define the alternative version
     if [ -n "$VERSION" ]; then
@@ -32,7 +32,7 @@ if [ -f "$PACKAGE_JSON_PATH" ]; then
     fi
 
     # get the package name from the package.json file
-    package_name=$(grep -o '"name": *"[^"]*"' "$PACKAGE_JSON_PATH" | sed 's/"name": "\(.*\)"/\1/')
+    package_name=$(jq -r '.name' "$PACKAGE_JSON_PATH")
 
     # check if the package name is empty and define the alternative name
     if [ -n "$package_name" ]; then
@@ -42,10 +42,10 @@ if [ -f "$PACKAGE_JSON_PATH" ]; then
     fi
 
     # get the package author from the package.json file
-    package_author=$(grep -o '"author": *"[^"]*"' "$PACKAGE_JSON_PATH" | sed 's/"author": "\(.*\)"/\1/')
+    package_author=$(jq -r '.author.name' "$PACKAGE_JSON_PATH")
 
     # check if the package author is empty and define the alternative autor
-    if [ -n "$package_name" ]; then
+    if [ -n "$package_author" ]; then
         AUTHOR=$package_author
     else
         AUTHOR=$ALTERNATIVE_AUTHOR
