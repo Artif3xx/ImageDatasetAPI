@@ -25,12 +25,12 @@ router = APIRouter()
 valid_orientations = ["landscape", "portrait", "square"]
 
 
-@router.get("/image/id/{image_id}", tags=["image routes"])
+@router.get("/image/id/{image_id}", tags=["Image Routes"])
 async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None = None, orientation: str | None = None):
     """
     Get an image by the imageID. This simply returns the image as a file response. If you want to get the image info,
     you need to request the info endpoint. You need at least one parameter to get an image. If you pass both parameters,
-    an error will be returned.
+    an error will be returned. \f
 
     :param db: the database session to use
     :param image_id: the id of the image to request
@@ -88,7 +88,7 @@ async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None =
 
 def image_as_bytes(src_image: Image) -> bytes:
     """
-    Convert a numpy array to bytes. This is used to return the image as a file response
+    Convert a numpy array to bytes. This is used to return the image as a file response \f
 
     :param src_image: the image as numpy array
     :return: the image as bytes
@@ -102,12 +102,12 @@ def image_as_bytes(src_image: Image) -> bytes:
         return image_bytes
 
 
-@router.get("/image/random", tags=["image routes"])
+@router.get("/image/random", tags=["Image Routes"])
 async def get_random_image(labels: str | None = None, db=Depends(get_db)):
     """
     Get a random image from the database. You can also pass a list of labels to get a random image with these labels.
     There must be at least one label inside an array. Example: ["label1", "label2"]. If you don´t want to search for
-    images with the following label, you can simply ignore the parameter.
+    images with the following label, you can simply ignore the parameter. \f
 
     :param labels: the labels to search for as list. Example: ["label1", "label2"]
     :param db: the database session to use

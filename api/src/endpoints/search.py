@@ -2,7 +2,6 @@
 this file contains the /search endpoints for the api
 """
 from __future__ import annotations
-import ast
 
 from fastapi import APIRouter, HTTPException, Depends
 
@@ -14,12 +13,12 @@ from api.src.tools.LabelTools import LabelTools
 router = APIRouter()
 
 
-@router.get("/search", tags=["search routes"])
+@router.get("/search", tags=["Search Routes"])
 async def get_image_ids_with_labels(labels: str, onlyOne: bool | None = None, onlyIDs: bool | None = None,
                                     db=Depends(get_db)):
     """
     Get all imageIDs that have the given labels. The labels must be passed as a list. Example: ["label1", "label2"] You
-    need at least one label to search for. If you want to search for multiple labels, you can pass them as a list.
+    need at least one label to search for. If you want to search for multiple labels, you can pass them as a list. \f
 
     :param onlyOne: true if the item should only contain one label
     :param onlyIDs: true if only the ids should be returned

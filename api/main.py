@@ -20,7 +20,34 @@ package_info = json.load(open("api/package.json"))
 app = FastAPI(
     title=package_info["name"],
     version=package_info["version"],
-    description=package_info["description"]
+    description=package_info["description"],
+
+    # some extra settings for the swagger ui
+    docs_url="/docs/swagger-ui",
+    openapi_url="/docs/openapi.json",
+    redoc_url=None,
+    swagger_ui_parameters={
+        'filter': False,
+        'docExpansion': "list",
+    },
+    openapi_tags=[
+        {"name": "Upload Routes",
+         "description": "Routes for uploading images to the server"},
+        {"name": "Image Routes",
+         "description": "Routes for getting images from the server"},
+        {"name": "Info Routes",
+         "description": "Routes for getting information about the server"},
+        {"name": "Item Routes",
+         "description": "Routes for getting information about items"},
+        {"name": "Search Routes",
+         "description": "Routes for searching items"},
+        {"name": "HTML pages",
+         "description": "HTML pages of the project"}
+    ],
+    license_info={
+        "name": "Apache 2.0 License",
+        "identifier": "MIT",
+    }
 )
 
 # mount the static folder to the api
@@ -37,28 +64,28 @@ app.include_router(search.router)
 @app.get("/", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_index(request: Request):
     """
-    get the main index page of the project
+    Get the main index page of the project \f
 
     :return: the index template as response
     """
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/docswrap", response_class=HTMLResponse, tags=["HTML pages"])
+@app.get("/docs", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_docsWrap(request: Request):
     """
-    get the docs page of the project
+    Get the docs html page of the project \f
 
-    :param request: web request
+    :param request: the web request
     :return: the docs template as response
     """
-    return templates.TemplateResponse("docswrap.html", {"request": request})
+    return templates.TemplateResponse("docs.html", {"request": request})
 
 
 @app.get("/imageview", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_imageView(request: Request):
     """
-    get the image view page of the project
+    Get the image view page of the project \f
 
     :param request: web request
     :return: the image view template as response
@@ -69,7 +96,7 @@ async def get_imageView(request: Request):
 @app.get("/upload", response_class=HTMLResponse, tags=["HTML pages"])
 async def get_upload(request: Request):
     """
-    get the upload page of the project
+    Get the upload page of the project \f
 
     :param request: web request
     :return: the upload template as response
