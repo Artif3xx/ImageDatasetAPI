@@ -3,13 +3,18 @@ simple label tools for the api. This file contains some usefully functions for l
 functions to detect duplications or find duplicated labels. This class is mostly used for cleaning up the database
 and filesystem
 """
+from __future__ import annotations
+import ast
 
 
 class LabelTools:
     """
     simple class to handle labels inside the database. This can be used to handle new labels
     """
-    def __init__(self, labelString: str = None, labelList: list[str] = None):
+    labelList: list[str]
+    __valid: bool
+
+    def __init__(self, labels: str | list[str]):
         """
         Create a new LabelTools object. You can pass a string or a list of strings to the constructor. If you pass
         a string, the labels will automatically be parsed into list of strings. Duplications will be removed
@@ -18,21 +23,17 @@ class LabelTools:
         :param labelString: the labels as a string. Example: "['label1', 'label2', 'label3']"
         :param labelList: a list full of labels as strings
         """
-        # check if only a labelString is passed
-        if labelString is not None and labelList is None:
-            self.labelString = labelString
-
-        # check if only a labelList is passed
-        if labelList is not None and labelString is None:
-            self.labelList = labelList
-
-        # check if the user don´t pass any parameter to the constructor
-        if labelString is None and labelList is None:
-            raise ValueError("You must pass at least one parameter to the constructor")
-
-        # check if the user pass more than one parameter to the constructor
-        if labelString is not None and labelList is not None:
-            raise ValueError("You can only pass one parameter to the constructor")
+        try:
+            if isinstance(labels, str):
+                # parse the string to label list
+                self.labelList = self.__parseLabels(labels)
+            elif isinstance(labels, list):
+                for label in labels:
+                    if not isinstance(label, str):
+                        raise ValueError("labels must be a list of strings")
+            self.__valid = True
+        except ValueError:
+            self.__valid = False
 
     def findDuplicates(self) -> None:
         """
@@ -45,7 +46,7 @@ class LabelTools:
         pass
 
     @staticmethod
-    def parseLabels(labelString: str) -> list[str]:
+    def __parseLabels(labelString: str) -> list[str]:
         """
         parse the labelString into a list of strings. This function will only use the labels inside the labelString,
         which can be extracted. If there are any items or values with another type then a string, they will be ignored.
@@ -54,17 +55,17 @@ class LabelTools:
             nothing to parse.
         :return: the labels inside a list as strings
         """
-        # TODO: implement
-        pass
+        string_list = ast.literal_eval(labelString)
 
-    @staticmethod
-    def isValid(labelString: str) -> bool:
+        if isinstance(string_list, list) and all(isinstance(item, str) for item in string_list):
+            return string_list
+        raise ValueError
+
+    def isValid(self) -> bool:
         """
         check if a labelString is valid. This can be used to determine if a incoming string is a valid labelString or
         not.
 
-        :param labelString: the labelString to check
         :return: boolean value if the labelString is valid or not
         """
-        # TODO: implement
-        pass
+        return self.__valid

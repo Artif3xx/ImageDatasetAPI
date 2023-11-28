@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from api.src.database import crud
 from api.src.database.database import get_db
+from api.src.tools.LabelTools import LabelTools
 
 
 router = APIRouter()
@@ -28,21 +29,20 @@ async def get_image_ids_with_labels(labels: str, onlyOne: bool | None = None, on
     """
 
     try:
-        string_list = ast.literal_eval(labels)
-
-        if isinstance(string_list, list) and all(isinstance(item, str) for item in string_list):
+        labelTools = LabelTools(labels)
+        if labelTools.isValid():
             if onlyIDs:
-                items = crud.get_items_by_label(db, labels=string_list, onlyOne=onlyOne if onlyOne is not None else False)
+                items = crud.get_items_by_label(db, labels=labelTools.labelList, onlyOne=onlyOne if onlyOne is not None else False)
                 item_ids = [item.id for item in items]
                 return item_ids
-            return crud.get_items_by_label(db, labels=string_list, onlyOne=onlyOne if onlyOne is not None else False)
+            return crud.get_items_by_label(db, labels=labelTools.labelList, onlyOne=onlyOne if onlyOne is not None else False)
         raise HTTPException(status_code=400, detail={
             "message": "labels must be a list of stings formatted as a string",
             "labels": labels,
-            "example": "[\"label1\", \"label2\"]"})
+            "example": f"[\'label1\', \'label2\']"})
     except (SyntaxError, ValueError) as e:
         raise HTTPException(status_code=400, detail={
             "message": "labels must be a list of stings formatted as a string",
             "labels": labels,
-            "example": "[\"label1\", \"label2\"]",
+            "example": f"[\'label1\', \'label2\']",
             "error": str(e)})

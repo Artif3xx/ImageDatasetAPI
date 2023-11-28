@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, Response
 
 from api.src.database import crud
 from api.src.database.database import get_db
+from api.src.tools.LabelTools import LabelTools
 
 
 router = APIRouter()
@@ -112,7 +113,34 @@ async def get_random_image(labels: str | None = None, db=Depends(get_db)):
     :param db: the database session to use
     :return: the requested image as file response
     """
+    if labels:
+        labelTools = LabelTools(labels)
+        if labelTools.isValid():
+            collected_ids = crud.get_items_by_label(db, labelTools.labelList, onlyOne=True)
+            if len(collected_ids) == 0:
+                raise HTTPException(status_code=400, detail={
+                    "message": "Nothing found to select from. Make sure your images exist and the "
+                               "searched labels are available",
+                    "example": f"[\'label1\', \'label2\']"})
+            random_id: int = random.sample(crud.get_items_by_label(db, labelTools.labelList, onlyOne=True), 1)
+        else:
+            raise HTTPException(status_code=400, detail={
+                "message": "labels must be a list of stings formatted as a string",
+                "labels": labels,
+                "example": f"[\'label1\', \'label2\']"})
+    else:
+        collected_ids = crud.get_ids(db)
+        if len(collected_ids) == 0:
+            raise HTTPException(status_code=400, detail={
+                "message": "Nothing found to select from. Make sure your images exist and the "
+                           "searched labels are available",
+                "example": f"[\'label1\', \'label2\']"})
+        random_id: int = random.sample(crud.get_ids(db), 1)
 
-    random_id = random.sample(crud.get_ids(db), 1)
+    if random_id is None:
+        raise HTTPException(status_code=400, detail={
+            "message": "Nothing found to select from. Make sure your images exist and the "
+                       "searched labels are available",
+            "example": f"[\'label1\', \'label2\']"})
     imageData = crud.get_item_by_id(db, item_id=random_id)
     return FileResponse(imageData.path, headers={"Content-Type": "image/jpeg"})

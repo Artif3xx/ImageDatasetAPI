@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+import json
 
 from api.src.endpoints import upload, image, info, item, search
 from api.src.database import models
@@ -13,8 +14,14 @@ from api.src.database.database import engine
 models.Base.metadata.create_all(bind=engine)
 templates = Jinja2Templates(directory="api/templates")
 
+package_info = json.load(open("api/package.json"))
+
 # create a fastapi instance
-app = FastAPI()
+app = FastAPI(
+    title=package_info["name"],
+    version=package_info["version"],
+    description=package_info["description"]
+)
 
 # mount the static folder to the api
 app.mount("/static", StaticFiles(directory="api/static/"), name="static")
