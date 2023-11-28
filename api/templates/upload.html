@@ -116,7 +116,7 @@
         new_toast_body.innerText = 'ID: ' + data.id + " with Labels: ";
 
         let toastLabels = document.createElement("p")
-        data.labels.forEach(function(value, index, array) {
+        data.labels.forEach(function(value) {
             let badge = document.createElement("span");
             badge.className = "badge badge-primary bg-primary mx-1";
             badge.textContent = String(value);
