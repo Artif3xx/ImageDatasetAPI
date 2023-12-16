@@ -42,24 +42,29 @@
 
 <script>
     let uploadTags = UseBootstrapTag(document.getElementById('imageUploadTagInput'));
-    let index_offset = 0
+
+    // a list with all created toast ids. If a toast disappears it should be deleted from the list
+    let availableToasts = []
+    // a list with n toasts that are shown at ones
+    const maxToasts = 5
+    let showToasts = []
+
 
     document.getElementById('submitUploadButton').addEventListener('click', function() {
         uploadImages()
     });
 
     function uploadImages() {
-        let tags = uploadTags.getValues();
+        const tags = uploadTags.getValues();
 
-        console.log(tags);
-        let imageFileInput = document.getElementById('imageUploadFileInput');
-        let files = imageFileInput.files;
+        // console.log(tags);
+        const imageFileInput = document.getElementById('imageUploadFileInput');
+        const files = imageFileInput.files;
 
         try {
             let valid = true;
             for (let i = 0; i < files.length; i++) {
                 let image = files[i];
-                index_offset += 1
 
                 let formData = new FormData();
                 formData.append('file', image);
@@ -75,11 +80,10 @@
                     return response.json()
                 })
                 .then(data => {
-                    console.log(data.label)
                     if (valid) {
-                        add_success_toast(data, index_offset)
+                        add_success_toast(data, i+1)
                     } else {
-                        add_error_toast(data, index_offset)
+                        add_error_toast(data, i+1)
                     }
                     return null
                 })
@@ -113,10 +117,10 @@
 
         let new_toast_body = document.createElement('div');
         new_toast_body.classList.add('toast-body');
-        new_toast_body.innerText = 'ID: ' + data.id + " with Labels: ";
+        new_toast_body.innerText = 'ID: ' + data['id'] + " with Labels: ";
 
         let toastLabels = document.createElement("p")
-        data.labels.forEach(function(value) {
+        data['labels'].forEach(function(value) {
             let badge = document.createElement("span");
             badge.className = "badge badge-primary bg-primary mx-1";
             badge.textContent = String(value);
@@ -129,8 +133,7 @@
         new_toast.appendChild(new_toast_body);
 
         toastContainer.appendChild(new_toast);
-        let toast = new bootstrap.Toast(document.getElementById('uploadToast' + String(toast_id)));
-        toast.show()
+        show_toast('uploadToast' + String(toast_id))
     }
 
     function add_error_toast(data, toast_id) {
@@ -148,20 +151,20 @@
 
         let new_toast_header_strong = document.createElement('strong')
         new_toast_header_strong.classList.add('mr-auto')
-        new_toast_header_strong.innerText = data.detail.message
+        new_toast_header_strong.innerText = data['detail']['message']
 
         let new_toast_body = document.createElement('div')
         new_toast_body.classList.add('toast-body')
 
         if (data.detail.hasOwnProperty('allowed_content_type')) {
             new_toast_body.innerText += "Allowed content types: "
-            data.detail.allowed_content_type.forEach(function(value) {
+            data['detail']['allowed_content_type'].forEach(function(value) {
                 new_toast_body.innerText += value + " "
             })
         }
 
         if (data.detail.hasOwnProperty('content_type')) {
-            new_toast_body.innerText += "\nUploaded content type: " + data.detail.content_type
+            new_toast_body.innerText += "\nUploaded content type: " + data['detail']['content_type']
         }
 
         new_toast_header.appendChild(new_toast_header_strong)
@@ -169,8 +172,34 @@
         new_toast.appendChild(new_toast_body)
 
         toastContainer.appendChild(new_toast)
-        let toast = new bootstrap.Toast(document.getElementById('errorToast' + String(toast_id)));
-        toast.show()
+        show_toast('errorToast' + String(toast_id))
+    }
+
+    function show_toast(toast_id) {
+        // check if the toast is in the list to show
+        // only show the first n toasts.
+        // this function should also be called if a toast disappears
+        if (showToasts.length < maxToasts) {
+            // means there is space in the showToasts list and we can add one.
+            // we need to update
+            showToasts.push(toast_id)
+            // display the toast
+            let element = document.getElementById(toast_id)
+            element.addEventListener('hidden.bs.toast', function () {
+                let currentToastID = showToasts.shift();
+                let currentToast = document.getElementById(currentToastID)
+                currentToast.remove()
+                if (availableToasts.length > 0) {
+                    let nextToast = availableToasts.shift()
+                    show_toast(nextToast)
+                }
+            })
+            let toast = new bootstrap.Toast(element);
+            toast.show();
+        } else {
+            // the toast must wait until there is enough space
+            availableToasts.push(toast_id)
+        }
     }
 </script>
 
