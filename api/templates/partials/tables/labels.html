@@ -28,6 +28,9 @@
 
           let scope_count = 1
           sortedArray.forEach(([key, value]) => {
+              if (scope_count > 15) {
+                return;
+              }
               // console.log(`Key: ${key}, Count: ${value.count}`);
 
               const row = document.createElement("tr");
