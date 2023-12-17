@@ -1,5 +1,7 @@
 # ImageDatasetAPI
 
+[![CodeQL](https://github.com/Artif3xx/ImageDatasetAPI/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Artif3xx/ImageDatasetAPI/actions/workflows/github-code-scanning/codeql)
+
 A simple docker based application to store and label images. Metadata of images will automatically be extracted and
 stored as well. The api is build with FastAPI and uses a sqlite database to store the data. Images will be saved in the 
 filesystem. The purpose of the project is to collect and label images for a machine learning model. To train the model,
@@ -11,10 +13,18 @@ There is also a custom frontend to manage the dataset, update labels and metadat
 
 ## Docker
 
-You can run the api with docker. The dockerfile can be downloaded from releases or build by yourself. More instructions
-coming soon.
+This application is designed to run in a docker environment. In order to use the image you can easily pull the latest 
+image from docker hub. You can find the images for [AMD](https://hub.docker.com/r/castox/image-dataset-api_amd64) and 
+for [ARM](https://hub.docker.com/r/castox/image-dataset-api_arm64) here. Use the following command to pull the 
+docker on your local machine:
 
-↪ [ImageDatasetAPI Releases](https://github.com/Artif3xx/ImageDatasetAPI/releases)
+``` bash
+docker pull castox/image-dataset-api_amd64:latest
+```
+
+```bash
+docker pull castox/image-dataset-api_arm64:latest
+```
 
 ---
 

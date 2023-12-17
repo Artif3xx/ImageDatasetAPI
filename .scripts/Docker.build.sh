@@ -2,7 +2,7 @@
 
 # define variables for the docker image
 SAVE_FOLDER="./out/docker"
-DOCKER_REGISTER=""
+DOCKER_REGISTER="castox"
 ALTERNATIVE_VERSION="undefined"
 ALTERNATIVE_AUTHOR="castox"
 ALTERNATIVE_IMAGE_NAME="imagedataset-api"
