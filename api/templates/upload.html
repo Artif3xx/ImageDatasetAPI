@@ -69,7 +69,7 @@
                 let formData = new FormData();
                 formData.append('file', image);
 
-                fetch('/upload?labels=' + JSON.stringify(tags), {
+                fetch('/upload?labels=' + encodeURIComponent(JSON.stringify(tags)), {
                     method: 'POST',
                     body: formData
                 })
