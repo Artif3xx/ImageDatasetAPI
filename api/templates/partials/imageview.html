@@ -36,7 +36,7 @@
                 <img id="imageDisplay" class="figure-img img-fluid" alt="Image" src="">
             </figure>
         </div>
-        <div class="col-5 border rounded bg-body-tertiary">
+        <div class="col-5 border rounded bg-body-tertiary overflow-auto">
             <div class="mt-1">
                 <h5>Labels:</h5>
                 <p id="labels"></p>
@@ -46,7 +46,11 @@
                 <ul id="metadata">
                 </ul>
             </div>
-            <pre id="jsonDisplay" class="overflow-auto"></pre>
+            <table class="table">
+                <tbody id="jsonTableBody">
+                  <!-- items will be generated here -->
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -197,6 +201,7 @@
             .then(data => {
                 console.log('Delete erfolgreich:', data);
                 // Hier kannst du die Erfolgsantwort verarbeiten
+                get_previous_id();
             })
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -218,14 +223,10 @@
 
     nextButton.addEventListener("click", async function() {
         await get_next_id();
-        idInput.value = aktuelleID;
-        await update_image();
     });
 
     previousButton.addEventListener("click", async function() {
         await get_previous_id();
-        idInput.value = aktuelleID;
-        await update_image();
     });
 
     randomButton.addEventListener("click", async function() {
@@ -246,12 +247,10 @@
             } else {
                 const nextData = await response.json();
                 aktuelleID = parseInt(nextData.id);
+                idInput.value = aktuelleID;
                 update_labels(nextData);
-
-                const jsonString = JSON.stringify(nextData['imageMetadata'], null, 2);
-                const jsonDisplay = document.getElementById("jsonDisplay");
-                jsonDisplay.textContent = jsonString
-                return nextData;
+                update_metadata_table(nextData);
+                await update_image();
             }
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -272,11 +271,10 @@
             } else {
                 const previousData = await response.json();
                 aktuelleID = parseInt(previousData.id);
+                idInput.value = aktuelleID;
                 update_labels(previousData);
-
-                const jsonString = JSON.stringify(previousData['imageMetadata'], null, 2);
-                const jsonDisplay = document.getElementById("jsonDisplay");
-                jsonDisplay.textContent = jsonString
+                update_metadata_table(previousData);
+                await update_image();
             }
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -292,11 +290,10 @@
             } else {
                 const lastData = await response.json();
                 aktuelleID = parseInt(lastData.id);
+                idInput.value = aktuelleID;
                 update_labels(lastData);
-
-                const jsonString = JSON.stringify(lastData['imageMetadata'], null, 2);
-                const jsonDisplay = document.getElementById("jsonDisplay");
-                jsonDisplay.textContent = jsonString
+                update_metadata_table(lastData);
+                await update_image();
             }
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -311,11 +308,10 @@
             } else {
                 const firstData = await response.json();
                 aktuelleID = parseInt(firstData.id);
+                idInput.value = aktuelleID;
                 update_labels(firstData);
-
-                const jsonString = JSON.stringify(firstData['imageMetadata'], null, 2);
-                const jsonDisplay = document.getElementById("jsonDisplay");
-                jsonDisplay.textContent = jsonString
+                update_metadata_table(firstData);
+                await update_image();
             }
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -330,11 +326,10 @@
             } else {
                 const randomData = await response.json();
                 aktuelleID = parseInt(randomData.id);
+                idInput.value = aktuelleID;
                 update_labels(randomData);
-
-                const jsonString = JSON.stringify(randomData['imageMetadata'], null, 2);
-                const jsonDisplay = document.getElementById("jsonDisplay");
-                jsonDisplay.textContent = jsonString
+                update_metadata_table(randomData);
+                await update_image();
             }
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -373,12 +368,32 @@
             }
             const item = await response.json();
             update_labels(item);
-
-            const jsonString = JSON.stringify(item['imageMetadata'], null, 2);
-            const jsonDisplay = document.getElementById("jsonDisplay");
-            jsonDisplay.textContent = jsonString
+            update_metadata_table(item);
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
+        }
+    }
+
+    function update_metadata_table(item) {
+        const imageMetadata = item['imageMetadata']
+        const table = document.getElementById("jsonTableBody");
+        table.innerHTML = "";
+
+        for (const key in imageMetadata) {
+            if (imageMetadata.hasOwnProperty(key)) {
+                const value = imageMetadata[key];
+                // console.log(`Key: ${key}, value: ${value}`);
+                const row = document.createElement("tr");
+                const td_label = document.createElement("td");
+                td_label.textContent = String(key);
+                row.appendChild(td_label);
+
+                const td_value = document.createElement("td");
+                td_value.textContent = String(value);
+
+                row.appendChild(td_value);
+                table.appendChild(row);
+            }
         }
     }
 

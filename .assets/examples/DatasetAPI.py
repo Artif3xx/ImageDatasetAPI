@@ -9,7 +9,7 @@ class API:
     def __init__(self, api_url):
         self.api_url = api_url
 
-    def request_image(self, item_id: int):
+    def get_image(self, item_id: int):
         url = self.api_url + "/image/id/" + str(item_id)
         response = requests.get(url)
 
@@ -80,6 +80,6 @@ def deleteFile(filepath: str) -> bool:
 
 
 if __name__ == "__main__":
-    api = DatasetAPI("http://portainer.local.com")
+    api = API("http://portainer.local.com")
     print(api.get_image_data(1))
     exit(0)
