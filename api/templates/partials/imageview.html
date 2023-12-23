@@ -64,15 +64,23 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <div class="modal-body">
-                <form class="mb-3">
+                <form class="mb-3" id="labelUpdateModalInputForm">
                     <label for="labelUpdateModalInput" class="form-label">Add your Labels here</label>
                     <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="labelUpdateModalInput">
                     <button class="btn btn-outline-secondary d-none" type="submit"></button>
                 </form>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="updateItemRadioKeep" checked>
+                    <label class="form-check-label" for="updateItemRadioKeep">no, keep the information!</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="updateItemRadioUpdate">
+                    <label class="form-check-label" for="updateItemRadioUpdate">yes, update the item!</label>
+                </div>
             </div>
         <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Commit changes</button>
+        <button type="button" class="btn btn-primary" id="updateItemButton" data-bs-dismiss="modal" disabled>Commit changes</button>
       </div>
     </div>
   </div>
@@ -117,6 +125,8 @@
     const imageDisplay = document.getElementById("imageDisplay");
     const idInput = document.getElementById("idInput");
 
+    let currentLabels = [];
+
     // init function for the image view
 
     window.onload = async function() {
@@ -137,26 +147,82 @@
         await update_image();
     });
 
-    const updateModal = document.getElementById('updateModal');
+    // ---------------------------------------------------------------------------------------------------- //
+    // manage update modal
 
-    updateModal.onload = function() {
-        // await get_item();
-        // console.log("update modal loaded");
-        const labels = document.getElementById('labelUpdateModalInput');
-        labels.value = "label1, label2, label3";
+    const updateModal = document.getElementById('updateModal');
+    const updateItemRadioUpdate = document.getElementById('updateItemRadioUpdate');
+    const updateItemRadioKeep = document.getElementById('updateItemRadioKeep');
+    const updateItemButton = document.getElementById('updateItemButton');
+
+    updateModal.addEventListener('show.bs.modal', function () {
+        // remove the current labels from the input
+        labelUpdateModalInput.getValues().forEach(label => {
+            labelUpdateModalInput.removeValue(label);
+        });
+        // add the correct current labels to the input
+        currentLabels.forEach(label => {
+            labelUpdateModalInput.addValue(label);
+        });
+
+        updateItemRadioUpdate.checked = false;
+        updateItemRadioKeep.checked = true;
+        updateItemButton.setAttribute("disabled", "disabled"); // deactivate button
+    });
+
+    document.getElementById('labelUpdateModalInputForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+
+    updateItemRadioUpdate.addEventListener('change', function() {
+        if (updateItemRadioUpdate.checked) {
+            updateItemButton.removeAttribute("disabled"); // activate button
+        } else {
+            updateItemButton.setAttribute("disabled", "disabled"); // deactivate button
+        }
+    });
+
+    updateItemRadioKeep.addEventListener('change', function() {
+        if (updateItemRadioKeep.checked) {
+            updateItemButton.setAttribute("disabled", "disabled"); // deactivate button
+        } else {
+            updateItemButton.removeAttribute("disabled"); // activate button
+        }
+    });
+
+    updateItemButton.addEventListener('click', async function() {
+        const confirm = document.getElementById("updateItemRadioUpdate");
+        if (confirm.checked) {
+            await updateItem();
+        }
+    });
+
+    async function updateItem() {
+        try {
+            const response = await fetch("/item/id/" + aktuelleID + "/update", {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'labels': labelUpdateModalInput.getValues()})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Update erfolgreich:', data);
+                get_item();
+            })
+        } catch (error) {
+            console.log("Fehler bei der Anfrage: " + error.message);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------------- //
-    // manage the radio buttons inside the delete modal
+    // manage delete modal
 
     const deleteItemButton = document.getElementById("deleteItemButton");
     const deleteItemRadioDelete = document.getElementById("deleteItemRadioDelete");
     const keepItemRadioDelete = document.getElementById("deleteItemRadioKeep");
     const modal = document.getElementById('deleteModal');
-
-    // some variables for the image to display
-    const image_width = 720;
-    const image_orientation = "portrait";
 
     // init function for the delete modal
 
@@ -202,6 +268,7 @@
                 console.log('Delete erfolgreich:', data);
                 // Hier kannst du die Erfolgsantwort verarbeiten
                 get_previous_id();
+                update_image();
             })
         } catch (error) {
             console.log("Fehler bei der Anfrage: " + error.message);
@@ -336,28 +403,9 @@
         }
     }
 
-    async function update_image() {
-        imageDisplay.src = "/image/id/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
-        // console.log("aktuelle ID: " + aktuelleID);
-    }
-
-    function update_labels(item) {
-        const labelsList = item.labels;
-        const labelsElement = document.getElementById("labels");
-
-        if (labelsElement) {
-
-            while (labelsElement.firstChild) {
-                labelsElement.removeChild(labelsElement.firstChild);
-            }
-            labelsList.forEach(label => {
-                const badge = document.createElement("span")
-                badge.className = "badge badge-primary bg-primary mx-1";
-                badge.textContent = String(label);
-                labelsElement.appendChild(badge)
-            });
-        }
-    }
+    // some variables for the image to display
+    const image_width = 720;
+    const image_orientation = "portrait";
 
     async function get_item() {
         try {
@@ -374,26 +422,47 @@
         }
     }
 
+    async function update_image() {
+        imageDisplay.src = "/image/id/" + aktuelleID + "?width=" + image_width + "&orientation=" + image_orientation;
+        // console.log("aktuelle ID: " + aktuelleID);
+    }
+
+    function update_labels(item) {
+        const labelsList = item.labels;
+        currentLabels = labelsList;
+
+        const labelsElement = document.getElementById("labels");
+        labelsElement.innerHTML = "";
+
+        labelsList.forEach(label => {
+            const badge = document.createElement("span")
+            badge.className = "badge badge-primary bg-primary mx-1";
+            badge.textContent = String(label);
+            labelsElement.appendChild(badge)
+        });
+    }
+
     function update_metadata_table(item) {
         const imageMetadata = item['imageMetadata']
         const table = document.getElementById("jsonTableBody");
         table.innerHTML = "";
 
+        if (Object.entries(imageMetadata).length === 0) {
+            table.innerHTML = "<div class=\"alert alert-primary\" role=\"alert\"> Keine Metadaten vorhanden </div>";
+            return;
+        }
         for (const key in imageMetadata) {
-            if (imageMetadata.hasOwnProperty(key)) {
-                const value = imageMetadata[key];
-                // console.log(`Key: ${key}, value: ${value}`);
-                const row = document.createElement("tr");
-                const td_label = document.createElement("td");
-                td_label.textContent = String(key);
-                row.appendChild(td_label);
+            const value = imageMetadata[key];
+            const row = document.createElement("tr");
+            const td_label = document.createElement("td");
+            td_label.textContent = String(key);
+            row.appendChild(td_label);
 
-                const td_value = document.createElement("td");
-                td_value.textContent = String(value);
+            const td_value = document.createElement("td");
+            td_value.textContent = String(value);
 
-                row.appendChild(td_value);
-                table.appendChild(row);
-            }
+            row.appendChild(td_value);
+            table.appendChild(row);
         }
     }
 

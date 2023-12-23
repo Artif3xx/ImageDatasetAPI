@@ -12,9 +12,32 @@
       <!-- items will be generated here -->
     </tbody>
   </table>
+  <!-- Pagination -->
+  <div class="justify-content-center d-flex mt-2">
+      <nav id="lableTableNavigation" style="display: none;">
+          <ul class="pagination" id="labelTablePages">
+              <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Previous" id="previousLabelTablePage">
+                      <span aria-hidden="true">&laquo;</span>
+                  </a>
+              </li>
+              <li class="page-item"><a id="labelTablePage" class="page-link" href="#">1</a></li>
+              <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Next" id="nextLabelTablePage">
+                      <span aria-hidden="true">&raquo;</span>
+                  </a>
+              </li>
+          </ul>
+      </nav>
+  </div>
 </div>
 
 <script>
+  let labelTableItems = [];
+  let labelTablePages = 1;
+  let currentLableTablePage = 1;
+  let labelsPerTablePage = 15;
+
   // init function for the partial
   document.addEventListener('DOMContentLoaded', function() {
     try {
@@ -23,37 +46,18 @@
         xhttp.onload = function() {
           let response_items = JSON.parse(this.responseText);
 
+          if (response_items.length === 0) {
+            table.innerHTML = "<tr><td colspan='3'>No labels found</td></tr>";
+            return;
+          }
+
           const sortedArray = Object.entries(response_items);
           sortedArray.sort((a, b) => b[1].count - a[1].count);
 
-          let scope_count = 1
-          sortedArray.forEach(([key, value]) => {
-              if (scope_count > 15) {
-                return;
-              }
-              // console.log(`Key: ${key}, Count: ${value.count}`);
-
-              const row = document.createElement("tr");
-              const th = document.createElement("th");
-              th.setAttribute("scope", "row");
-              th.textContent = String(scope_count);
-              scope_count++;
-              row.appendChild(th);
-
-              const td_label = document.createElement("td");
-              td_label.textContent = String(key);
-              row.appendChild(td_label);
-
-              const td_amount = document.createElement("td");
-              if (value.hasOwnProperty("count")) {
-                td_amount.textContent = String(value.count);
-              } else {
-                td_amount.textContent = "count not found";
-              }
-              row.appendChild(td_amount);
-
-              table.appendChild(row);
-          });
+          labelTableItems = sortedArray;
+          labelTablePages = Math.ceil(labelTableItems.length / labelsPerTablePage);
+          loadLableTable();
+          document.getElementById("lableTableNavigation").style.display = "block";
         }
         xhttp.open("GET", "/info/labels");
         xhttp.send();
@@ -61,4 +65,57 @@
       console.log("Fehler bei der Anfrage: " + error.message)
     }
   });
+
+  document.getElementById('previousLabelTablePage').addEventListener('click', function() {
+    if (currentLableTablePage > 1 && currentLableTablePage <= labelTablePages) {
+        currentLableTablePage--;
+        loadLableTable();
+    }
+  });
+
+  document.getElementById('nextLabelTablePage').addEventListener('click', function() {
+    if (currentLableTablePage >= 1 && currentLableTablePage < labelTablePages) {
+        currentLableTablePage++;
+        loadLableTable();
+    }
+  });
+
+  function loadLableTable() {
+    const slices = labelTableItems.slice((currentLableTablePage - 1) * labelsPerTablePage, ((currentLableTablePage - 1) * labelsPerTablePage) + labelsPerTablePage);
+    let labelTabelPageLabel = document.getElementById("labelTablePage");
+    labelTabelPageLabel.textContent = String(currentLableTablePage) + " / " + String(labelTablePages);
+
+    const table = document.getElementById("infoTableBody");
+    table.innerHTML = "";
+
+    let scope_count = 1 + ((currentLableTablePage - 1) * labelsPerTablePage);
+    slices.forEach(([key, value]) => {
+        if (scope_count > labelsPerTablePage * labelsPerTablePage) {
+          return;
+        }
+        // console.log(`Key: ${key}, Count: ${value.count}`);
+
+        const row = document.createElement("tr");
+        const th = document.createElement("th");
+        th.setAttribute("scope", "row");
+        th.textContent = String(scope_count);
+        scope_count++;
+        row.appendChild(th);
+
+        const td_label = document.createElement("td");
+        td_label.textContent = String(key);
+        row.appendChild(td_label);
+
+        const td_amount = document.createElement("td");
+        if (value.hasOwnProperty("count")) {
+          td_amount.textContent = String(value.count);
+        } else {
+          td_amount.textContent = "count not found";
+        }
+        row.appendChild(td_amount);
+
+        table.appendChild(row);
+    });
+  }
+
 </script>

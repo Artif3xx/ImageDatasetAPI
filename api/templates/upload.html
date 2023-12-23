@@ -15,7 +15,7 @@
                         <label for="imageUploadFileInput" class="form-label">Upload your Images here</label>
                         <input class="form-control" type="file" id="imageUploadFileInput" multiple />
                     </div>
-                    <form class="mb-3">
+                    <form class="mb-3" id="imageUploadTagInputForm">
                         <label for="imageUploadTagInput" class="form-label">Add your Labels here</label>
                         <input type="text" class="form-control" placeholder="Add a tag then press comma or Enter" id="imageUploadTagInput">
                         <button class="btn btn-outline-secondary d-none" type="submit"></button>
@@ -42,6 +42,10 @@
 
 <script>
     let uploadTags = UseBootstrapTag(document.getElementById('imageUploadTagInput'));
+
+    document.getElementById('imageUploadTagInputForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
 
     // a list with all created toast ids. If a toast disappears it should be deleted from the list
     let availableToasts = []
