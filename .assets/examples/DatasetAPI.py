@@ -9,6 +9,11 @@ class API:
     def __init__(self, api_url):
         self.api_url = api_url
 
+    def get_info(self):
+        url = self.api_url + "/info"
+        response = requests.get(url)
+        return response.json()
+
     def get_image(self, item_id: int):
         url = self.api_url + "/image/id/" + str(item_id)
         response = requests.get(url)
@@ -70,6 +75,19 @@ class API:
 def deleteFile(filepath: str) -> bool:
     try:
         os.remove(filepath)
+        return True
+    except FileNotFoundError:
+        return False
+    except PermissionError:
+        return False
+    except IsADirectoryError:
+        return False
+
+
+def writeFile(filepath: str, content) -> bool:
+    try:
+        with open(filepath, "w") as file:
+            file.write(content)
         return True
     except FileNotFoundError:
         return False
