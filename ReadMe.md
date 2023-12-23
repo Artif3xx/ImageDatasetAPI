@@ -1,6 +1,14 @@
 # ImageDatasetAPI
 
 [![CodeQL](https://github.com/Artif3xx/ImageDatasetAPI/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Artif3xx/ImageDatasetAPI/actions/workflows/github-code-scanning/codeql)
+[![GitHub](https://img.shields.io/github/license/Artif3xx/ImageDatasetAPI?style=flat)](https://github.com/Artif3xx/ImageDatasetAPI/blob/master/LICENSE.rst)
+
+| **[AMD64](https://hub.docker.com/r/castox/image-dataset-api_amd64)**                                                                                                                                                | **[ARM64](https://hub.docker.com/r/castox/image-dataset-api_arm64)**                                                                                                                                                |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/castox/image-dataset-api_amd64)                                                                                                             | ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/castox/image-dataset-api_arm64)                                                                                                             |
+| [![Docker](https://img.shields.io/docker/image-size/castox/image-dataset-api_arm64/latest?label=Docker%20Image%20Size&style=flat)](https://hub.docker.com/repository/docker/castox/image-dataset-api_arm64/general) | [![Docker](https://img.shields.io/docker/image-size/castox/image-dataset-api_amd64/latest?label=Docker%20Image%20Size&style=flat)](https://hub.docker.com/repository/docker/castox/image-dataset-api_amd64/general) |
+
+---
 
 A simple docker based application to store and label images. Metadata of images will automatically be extracted and
 stored as well. The api is build with FastAPI and uses a sqlite database to store the data. Images will be saved in the 

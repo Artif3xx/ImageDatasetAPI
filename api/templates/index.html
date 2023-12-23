@@ -183,21 +183,20 @@
             xhttp.onload = function() {
                 let response_items = JSON.parse(this.responseText);
                 if (response_items.length === 0) {
-                    // console.log('Nothing found');
                     nothing_found_toast();
-                } else {
-                    // console.log('found something');
-                    // console.log(response_items);
-                    document.getElementById('pageNavigation').style.display = 'block';
-                    items = response_items;
-                    pages = Math.ceil(items.length / itemsPerPage);
-
-                    const resultHint = document.getElementById('resultHint');
-                    resultHint.textContent = "Found " + items.length + " images on " + pages + " pages.";
-
-                    showSearchResultTab();
-                    loadPage();
+                    return;
                 }
+
+                document.getElementById('pageNavigation').style.display = 'block';
+                items = response_items;
+                pages = Math.ceil(items.length / itemsPerPage);
+
+                const resultHint = document.getElementById('resultHint');
+                resultHint.textContent = "Found " + items.length + " images on " + pages + " pages.";
+
+                showSearchResultTab();
+                loadPage();
+
             }
             xhttp.open("GET", "/search?labels=" + encodeURIComponent(JSON.stringify(tags.split(","))));
             xhttp.send();
@@ -261,51 +260,51 @@
         results.innerHTML = '';
         slices.forEach(function(value, index, array) {
             if (index >= itemsPerPage) {
-                        return;
-                    }
+                return;
+            }
 
-                    const div = document.createElement('div');
-                    div.classList.add('col-sm-3');
-                    const card = document.createElement('div');
-                    card.classList.add('card');
-                    card.classList.add('mt-2');
+            const div = document.createElement('div');
+            div.classList.add('col-sm-3');
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.classList.add('mt-2');
 
-                    const cardImage = document.createElement('img');
-                    cardImage.classList.add('card-img-top');
-                    cardImage.src = '/image/id/' + value.id + '?orientation=portrait&width=480';
-                    card.appendChild(cardImage);
+            const cardImage = document.createElement('img');
+            cardImage.classList.add('card-img-top');
+            cardImage.src = '/image/id/' + value.id + '?orientation=portrait&width=480';
+            card.appendChild(cardImage);
 
-                    const cardBody = document.createElement('div');
-                    cardBody.classList.add('card-body');
-                    const cardText1 = document.createElement('p');
-                    cardText1.textContent = 'ID: ' + value.id
-                    cardBody.appendChild(cardText1);
+            const cardBody = document.createElement('div');
+            cardBody.classList.add('card-body');
+            const cardText1 = document.createElement('p');
+            cardText1.textContent = 'ID: ' + value.id
+            cardBody.appendChild(cardText1);
 
-                    const cardTextLabels = document.createElement('p');
-                    const cardTextLabelsTitle = document.createElement('span');
-                    cardTextLabelsTitle.textContent = 'Labels: ';
-                    cardTextLabels.appendChild(cardTextLabelsTitle);
-                    value.labels.forEach(function(value, index, array){
-                        const badge = document.createElement("span")
-                        badge.className = "badge badge-primary bg-primary mx-1";
-                        badge.textContent = String(value);
-                        cardTextLabels.appendChild(badge)
-                    });
-                    cardBody.appendChild(cardTextLabels);
+            const cardTextLabels = document.createElement('p');
+            const cardTextLabelsTitle = document.createElement('span');
+            cardTextLabelsTitle.textContent = 'Labels: ';
+            cardTextLabels.appendChild(cardTextLabelsTitle);
+            value.labels.forEach(function(value, index, array){
+                const badge = document.createElement("span")
+                badge.className = "badge badge-primary bg-primary mx-1";
+                badge.textContent = String(value);
+                cardTextLabels.appendChild(badge)
+            });
+            cardBody.appendChild(cardTextLabels);
 
-                    const download = document.createElement('a');
-                    download.href = '#';
-                    download.classList.add('card-link');
-                    download.textContent = 'inspect';
-                    download.addEventListener('click', function(){
-                        window.open('/image/id/' + value.id, '_blank');
-                    });
-                    cardBody.appendChild(download);
+            const download = document.createElement('a');
+            download.href = '#';
+            download.classList.add('card-link');
+            download.textContent = 'inspect';
+            download.addEventListener('click', function(){
+                window.open('/image/id/' + value.id, '_blank');
+            });
+            cardBody.appendChild(download);
 
-                    card.appendChild(cardBody);
-                    div.appendChild(card);
-                    results.appendChild(div);
-                });
+            card.appendChild(cardBody);
+            div.appendChild(card);
+            results.appendChild(div);
+        });
     }
     // ---------------------------------------------------------------------------------------------------- //
 </script>
