@@ -16,3 +16,4 @@ class Item(Base):
     path = Column(String, index=True)
     imageMetadata = Column(JSON, index=True)
     labels = Column(PickleType, index=True)
+    sha256_digest = Column(String, index=True)

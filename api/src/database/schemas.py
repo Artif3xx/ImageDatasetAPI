@@ -23,6 +23,7 @@ class ItemCreate(ItemBase):
     This class contains variables that are mandatory for creating an item
     """
     path: str
+    sha256_digest: str
     pass
 
 
@@ -41,3 +42,4 @@ class Item(ItemBase):
     """
     path: str
     id: int
+    sha256_digest: str

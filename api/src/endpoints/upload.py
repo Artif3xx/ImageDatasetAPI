@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from api.src.tools.FolderTools import FolderTools
 from api.src.tools.MetadataTools import MetadataTools
+from api.src.tools.HashTools import HashTools
 from api.src.database import crud, schemas
 from api.src.database.database import get_db
 
@@ -57,10 +58,13 @@ async def upload_image(file: UploadFile, labels: str | None = None, db: Session 
 
             if isinstance(string_list, list) and all(isinstance(item, str) for item in string_list):
                 save()
+                # calculate the sha-256 hash of the image
+                image_hash = HashTools(file.filename).get_hash()
                 return crud.create_item(db, schemas.ItemCreate(
                     path=file.filename,
                     labels=string_list,
-                    imageMetadata=MetadataTools.loadMetadataAsJson(file.filename)))
+                    imageMetadata=MetadataTools.loadMetadataAsJson(file.filename),
+                    sha256_digest=image_hash))
             raise HTTPException(status_code=400, detail={
                 "message": "labels must be a list of stings formatted as a string",
                 "labels": labels,
@@ -74,7 +78,10 @@ async def upload_image(file: UploadFile, labels: str | None = None, db: Session 
     # handle request if labels are not used as parameter
     else:
         save()
+        # calculate the sha-256 hash of the image
+        image_hash = HashTools(file.filename).get_hash()
         return crud.create_item(db, schemas.ItemCreate(
             path=file.filename,
             labels=[],
-            imageMetadata=MetadataTools.loadMetadataAsJson(file.filename)))
+            imageMetadata=MetadataTools.loadMetadataAsJson(file.filename),
+            sha256_digest=image_hash))

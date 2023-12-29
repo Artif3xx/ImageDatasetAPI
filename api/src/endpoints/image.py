@@ -18,7 +18,6 @@ from api.src.database import crud
 from api.src.database.database import get_db
 from api.src.tools.LabelTools import LabelTools
 
-
 router = APIRouter()
 
 # valid modes for the orientation parameter
@@ -56,6 +55,7 @@ async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None =
     # check if an orientations or a width is passed as parameter
     if orientation or width:
         image = Image.open(filepath)
+        image_format = filepath.split(".")[-1].upper()
         # handle the orientation parameter
         if orientation:
             if orientation not in valid_orientations:
@@ -72,21 +72,23 @@ async def get_image_by_id(image_id: int, db=Depends(get_db), width: int | None =
                     raise HTTPException(status_code=400, detail={"error": "width parameter is required "
                                                                           "when using square orientation"})
                 image = image.resize((width, width))
-                return Response(content=image_as_bytes(image),
-                                headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
+                return Response(content=image_as_bytes(image, image_format),
+                                headers={"Content-Type": "image/" + image_format.lower()},
+                                media_type="image/" + image_format.lower())
 
         # handle the width parameter
         if width:
             old_dimension_ratio = width / image.width
             new_height = int(image.height * old_dimension_ratio)
             image = image.resize((width, new_height))
-        return Response(content=image_as_bytes(image),
-                        headers={"Content-Type": "image/jpeg"}, media_type="image/jpeg")
+        return Response(content=image_as_bytes(image, image_format),
+                        headers={"Content-Type": "image/" + image_format.lower()},
+                        media_type="image/" + image_format.lower())
     # ----------------------------------------------------------------------------------------------------
     return FileResponse(filepath, headers={"Content-Type": "image/jpeg"})
 
 
-def image_as_bytes(src_image: Image) -> bytes:
+def image_as_bytes(src_image: Image, img_format: str) -> bytes:
     """
     Convert a numpy array to bytes. This is used to return the image as a file response \f
 
@@ -96,7 +98,7 @@ def image_as_bytes(src_image: Image) -> bytes:
     image_pil = src_image
 
     with BytesIO() as buffer:
-        image_pil.save(buffer, format="JPEG")
+        image_pil.save(buffer, format=img_format)
         image_bytes = buffer.getvalue()
 
         return image_bytes
